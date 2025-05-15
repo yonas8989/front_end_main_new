@@ -1,7 +1,7 @@
 // src/sagas/rootSaga.js
 import { all } from "redux-saga/effects";
-import songSaga from "./songSaga"; // Import the song-related saga
-import authSaga from "./authSaga";
+import songSaga from "../features/song/songSaga";
+import authSaga from "../features/auth/authSaga";
 
 // Combine all sagas here
 export default function* rootSaga() {

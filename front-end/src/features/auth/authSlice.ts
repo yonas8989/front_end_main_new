@@ -1,6 +1,6 @@
 // src/redux/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, LoginCredentials, RegisterData, ResetPasswordData } from '../types/auth';
+import { User, LoginCredentials, RegisterData, ResetPasswordData } from '../../types/auth';
 
 interface AuthState {
   user: User | null;

@@ -21,9 +21,9 @@ import {
   verifyEmailRequest,
   verifyEmailSuccess,
   verifyEmailFailure,
-} from '../redux/authSlice';
-import authService from '../services/authService';
-import { LoginCredentials, User, RegisterData, ResetPasswordData } from '../types/auth';
+} from '../auth/authSlice';
+import authService from '../auth/authService';
+import { LoginCredentials, User, RegisterData, ResetPasswordData } from '../../types/auth';
 
 function* handleLogin(action: PayloadAction<LoginCredentials>): Generator<any, void, User> {
   try {

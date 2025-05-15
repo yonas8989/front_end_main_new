@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from './store'; // Changed from 'store' to 'RootState'
-import { Song, Filters } from '../types/song';
+import { RootState } from '../../app/store';
+import { Song, Filters } from '../../types/song';
 
 
 

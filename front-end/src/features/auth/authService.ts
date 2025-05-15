@@ -1,11 +1,10 @@
-import api from "../api/apiClient";
+import api from "../../api/apiClient";
 import {
   LoginCredentials,
   User,
   RegisterData,
   ResetPasswordData,
-} from "../types/auth";
-import { ApiResponse } from "../types/api";
+} from "../../types/auth";
 
 // Custom error for authentication-specific issues
 class AuthError extends Error {

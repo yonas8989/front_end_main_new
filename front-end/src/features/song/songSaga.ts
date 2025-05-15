@@ -13,10 +13,10 @@ import {
   addSongRequest,
   editSongRequest,
   deleteSongRequest,
-} from "../redux/songSlice";
-import api from "../api/apiClient";
-import { Song, SongPayload,  } from "../types/song";
-import {ApiResponse} from "../types/api"
+} from "../song/songSlice";
+import api from "../../api/apiClient";
+import { Song, SongPayload,  } from "../../types/song";
+import {ApiResponse} from "../../types/api"
 
 function* handleApiError(
   error: unknown,

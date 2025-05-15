@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Song, SongPayload, Filters } from '../types/song';
+import { Song, SongPayload, Filters } from '../../types/song';
 
 interface SongState {
   songs: Song[];

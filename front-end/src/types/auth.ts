@@ -4,7 +4,7 @@ import { ApiResponse } from './api'; // Import from shared location
 export interface LoginCredentials {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberMe?: boolean;
 }
 
 export interface User {

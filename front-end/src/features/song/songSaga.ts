@@ -14,70 +14,61 @@ import {
   editSongRequest,
   deleteSongRequest,
 } from "../song/songSlice";
-import api from "../../api/apiClient";
-import { Song, SongPayload,  } from "../../types/song";
-import {ApiResponse} from "../../types/api"
+import { api } from "../../api/apiClient";
+import { Song, SongPayload } from "../../types/song";
 
 function* handleApiError(
   error: unknown,
   failureAction: (payload: string) => PayloadAction<string>
 ) {
-  let errorMessage = "An unexpected error occurred";
-
-  if (error instanceof Error) {
-    errorMessage = error.message;
-  } else if (typeof error === "string") {
-    errorMessage = error;
-  }
-
+  const errorMessage = error instanceof Error 
+    ? error.message 
+    : 'An unexpected error occurred';
+  
   yield put(failureAction(errorMessage));
 }
 
-function* fetchSongs(): Generator<any, void, ApiResponse<Song[]>> {
+function* fetchSongs() {
   try {
-    const response = yield call(api.get, "/songs");
-    yield put(fetchSongsSuccess(response.data));
+    const songs: Song[] = yield call(api.get, "/songs");
+    yield put(fetchSongsSuccess(songs));
   } catch (error) {
     yield handleApiError(error, fetchSongsFailure);
   }
 }
 
-function* addSong(
-  action: PayloadAction<SongPayload>
-): Generator<any, void, ApiResponse<Song>> {
+function* addSong(action: PayloadAction<SongPayload>) {
   try {
     const { title } = action.payload;
-    if (!title || title.trim() === "") {
+    if (!title?.trim()) {
       yield put(addSongFailure("Song title is required"));
       return;
     }
-    const response = yield call(api.post, "/songs", action.payload);
-    yield put(addSongSuccess(response.data));
+    
+    const newSong: Song = yield call(api.post, "/songs", action.payload);
+    yield put(addSongSuccess(newSong));
   } catch (error) {
     yield handleApiError(error, addSongFailure);
   }
 }
 
-function* editSong(
-  action: PayloadAction<SongPayload & { id: string }>
-): Generator<any, void, ApiResponse<Song>> {
+function* editSong(action: PayloadAction<SongPayload & { id: string }>) {
   try {
     const { id, title } = action.payload;
-    if (!title || title.trim() === "") {
+    if (!title?.trim()) {
       yield put(editSongFailure("Song title is required"));
       return;
     }
+    
     const { id: _, ...updatedSong } = action.payload;
-    const response = yield call(api.put, `/songs/${id}`, updatedSong);
-    yield put(editSongSuccess(response.data));
+    const song: Song = yield call(api.put, `/songs/${id}`, updatedSong);
+    yield put(editSongSuccess(song));
   } catch (error) {
     yield handleApiError(error, editSongFailure);
   }
 }
 
-function* deleteSong(
-  action: PayloadAction<string>
-): Generator<any, void, ApiResponse<void>> {
+function* deleteSong(action: PayloadAction<string>) {
   try {
     yield call(api.delete, `/songs/${action.payload}`);
     yield put(deleteSongSuccess(action.payload));

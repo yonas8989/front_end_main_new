@@ -5,6 +5,21 @@ import {
   RegisterData,
   ResetPasswordData,
 } from "../../types/auth";
+import { ApiResponse } from "../../types/api";
+
+// Define specific response types for each endpoint
+interface LoginResponse extends ApiResponse {
+  data: {
+    token: string;
+    user: User;
+  };
+}
+
+interface RegisterResponse extends LoginResponse {}
+
+interface CurrentUserResponse extends ApiResponse {
+  data: User;
+}
 
 // Custom error for authentication-specific issues
 class AuthError extends Error {
@@ -28,15 +43,15 @@ interface AuthService {
 const authService: AuthService = {
   async login({ email, password, rememberMe }: LoginCredentials): Promise<User> {
     try {
-      const response = await api.post(
+      const { data } = await api.post<LoginResponse>(
         "/auth/login",
         { email, password }
       );
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", data.data.token);
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
       }
-      return response.data.user;
+      return data.data.user;
     } catch (error: any) {
       throw new AuthError(
         error.response?.data?.message || "Login failed",
@@ -47,12 +62,12 @@ const authService: AuthService = {
 
   async register(userData: RegisterData): Promise<User> {
     try {
-      const response = await api.post(
+      const { data } = await api.post<RegisterResponse>(
         "/auth/register",
         userData
       );
-      localStorage.setItem("token", response.data.token);
-      return response.data.user;
+      localStorage.setItem("token", data.data.token);
+      return data.data.user;
     } catch (error: any) {
       throw new AuthError(
         error.response?.data?.message || "Registration failed",
@@ -99,8 +114,8 @@ const authService: AuthService = {
 
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await api.get("/auth/me");
-      return response.data;
+      const { data } = await api.get<CurrentUserResponse>("/auth/me");
+      return data.data;
     } catch (error: any) {
       throw new AuthError(
         error.response?.data?.message || "Failed to fetch user",

@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 
 // Styled components
 const Form = styled.form`
-  width: 100%;
+  kidth: 100%;
 `;
 
 const FormGroup = styled.div`
@@ -19,29 +19,30 @@ const FormGroup = styled.div`
 const Label = styled.label`
   display: block;
   margin-bottom: 0.5rem;
-  color: #03045e;
+  color: #6d6875;
   font-weight: 500;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #caf0f8;
+  border: 1px solid #ffb4a2;
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  background-color: #ffcdb2;
 
   &:focus {
     outline: none;
-    border-color: #0096c7;
-    box-shadow: 0 0 0 2px rgba(0, 150, 199, 0.2);
+    border-color: #e5989b;
+    box-shadow: 0 0 0 2px rgba(181, 131, 141, 0.2);
   }
 `;
 
 const SubmitButton = styled.button<{ isLoading: boolean }>`
   width: 100%;
   padding: 0.75rem;
-  background-color: #023e8a;
+  background-color: #b5838d;
   color: white;
   border: none;
   border-radius: 4px;
@@ -55,20 +56,20 @@ const SubmitButton = styled.button<{ isLoading: boolean }>`
   gap: 0.5rem;
 
   &:hover {
-    background-color: #03045e;
+    background-color: #6d6875;
   }
 
   &:disabled {
-    background-color: #ade8f4;
+    background-color: #ffb4a2;
     cursor: not-allowed;
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: #d90429;
+  color: #6d6875;
   margin-top: 1rem;
   padding: 0.75rem;
-  background-color: rgba(217, 4, 41, 0.1);
+  background-color: rgba(109, 104, 117, 0.1);
   border-radius: 4px;
   font-size: 0.875rem;
 `;
@@ -156,7 +157,7 @@ const LoginPage: React.FC = () => {
             aria-describedby={validationErrors.email ? "email-error" : undefined}
           />
           {validationErrors.email && (
-            <small id="email-error" style={{ color: '#d90429' }}>
+            <small id="email-error" style={{ color: '#6d6875' }}>
               {validationErrors.email}
             </small>
           )}
@@ -175,7 +176,7 @@ const LoginPage: React.FC = () => {
             aria-describedby={validationErrors.password ? "password-error" : undefined}
           />
           {validationErrors.password && (
-            <small id="password-error" style={{ color: '#d90429' }}>
+            <small id="password-error" style={{ color: '#6d6875' }}>
               {validationErrors.password}
             </small>
           )}

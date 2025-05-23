@@ -1,4 +1,4 @@
-// src/components/Layout/AuthLayout.tsx
+
 import React from 'react';
 import styled from '@emotion/styled';
 import { AuthLayoutProps } from '../../types/layout';
@@ -6,7 +6,7 @@ import { AuthLayoutProps } from '../../types/layout';
 const AuthContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #03045e 0%, #023e8a 50%, #0077b6 100%);
+  background: linear-gradient(135deg, #6d6875 0%, #b5838d 50%, #e5989b 100%);
 `;
 
 const AuthContent = styled.div`
@@ -14,13 +14,13 @@ const AuthContent = styled.div`
   max-width: 500px;
   margin: auto;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: #ffcdb2;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(109, 104, 117, 0.3);
 `;
 
 const AuthHeader = styled.h1`
-  color: #03045e;
+  color: #6d6875;
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;

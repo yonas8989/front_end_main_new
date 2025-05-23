@@ -1,21 +1,28 @@
 // src/redux/authSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, LoginCredentials, RegisterData, ResetPasswordData } from '../../types/auth';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  User,
+  LoginCredentials,
+  RegisterData,
+  ResetPasswordData,
+} from "../../types/auth";
 
 interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   loading: false,
   error: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     loginRequest(state, _action: PayloadAction<LoginCredentials>) {
@@ -87,6 +94,10 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    // Add this to your authSlice reducers
+    setAuthenticated(state, action: PayloadAction<boolean>) {
+      state.isAuthenticated = action.payload;
+    },
   },
 });
 
@@ -109,6 +120,7 @@ export const {
   verifyEmailRequest,
   verifyEmailSuccess,
   verifyEmailFailure,
+  setAuthenticated,
 } = authSlice.actions;
 
 export default authSlice.reducer;

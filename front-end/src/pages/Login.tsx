@@ -1,204 +1,87 @@
-// src/pages/Login.tsx
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthLayout from '../components/Layout/AuthLayout';
-import { loginRequest } from '../features/auth/authSlice';
-import { RootState } from '../app/store';
-import styled from '@emotion/styled';
+import { useDispatch } from 'react-redux';
+import { User } from '../types/auth';
+import { loginRequest, loginSuccess, loginFailure } from '../features/auth/authSlice';
+import { AuthContainer, AuthContent, AuthTitle, AuthButton, AuthLink } from '../components/Layout/AuthStyles';
+import FormInput from '../components/FormInput';
 
-// Styled components
-const Form = styled.form`
-  kidth: 100%;
-`;
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
 
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #6d6875;
-  font-weight: 500;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ffb4a2;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background-color: #ffcdb2;
-
-  &:focus {
-    outline: none;
-    border-color: #e5989b;
-    box-shadow: 0 0 0 2px rgba(181, 131, 141, 0.2);
-  }
-`;
-
-const SubmitButton = styled.button<{ isLoading: boolean }>`
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #b5838d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  &:hover {
-    background-color: #6d6875;
-  }
-
-  &:disabled {
-    background-color: #ffb4a2;
-    cursor: not-allowed;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: #6d6875;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: rgba(109, 104, 117, 0.1);
-  border-radius: 4px;
-  font-size: 0.875rem;
-`;
-
-const LoginPage: React.FC = () => {
+export default function Login() {
+  const [formData, setFormData] = useState<LoginCredentials>({
+    email: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [validationErrors, setValidationErrors] = useState({
-    email: '',
-    password: '',
-  });
+  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear validation error when user types
-    if (validationErrors[name as keyof typeof validationErrors]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+  const validate = (): boolean => {
+    const newErrors: Partial<LoginCredentials> = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const validateForm = () => {
-    const errors = {
-      email: '',
-      password: '',
-    };
-    let isValid = true;
-
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
-      isValid = false;
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required';
-      isValid = false;
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
-      isValid = false;
-    }
-
-    setValidationErrors(errors);
-    return isValid;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      dispatch(loginRequest({
-        email: formData.email,
-        password: formData.password
-      }));
+    if (!validate()) return;
+
+    try {
+      // Dispatch loginRequest with credentials payload
+      dispatch(loginRequest(formData));
+      
+      // Mock API call - replace with actual API call
+      const response = await new Promise<{ user: User }>((resolve) => 
+        setTimeout(() => resolve({ 
+          user: { 
+            id: '1', // Assuming User interface has an id
+            name: 'Test User', 
+            email: formData.email,
+            // Add any other required user fields
+          } 
+        }), 1000)
+      );
+
+      // Dispatch loginSuccess with user data
+      dispatch(loginSuccess(response.user));
+      navigate('/dashboard');
+    } catch (error) {
+      // Dispatch loginFailure with error message
+      dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));
     }
   };
 
   return (
-      <Form onSubmit={handleSubmit}>
-        <FormGroup>
-          <Label htmlFor="email">Email</Label>
-          <Input
+    <AuthContainer>
+      <AuthContent>
+        <AuthTitle>Login</AuthTitle>
+        <form onSubmit={handleSubmit}>
+          <FormInput
+            label="Email"
             type="email"
-            id="email"
-            name="email"
             value={formData.email}
-            onChange={handleChange}
-            disabled={loading}
-            aria-invalid={!!validationErrors.email}
-            aria-describedby={validationErrors.email ? "email-error" : undefined}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            error={errors.email}
           />
-          {validationErrors.email && (
-            <small id="email-error" style={{ color: '#6d6875' }}>
-              {validationErrors.email}
-            </small>
-          )}
-        </FormGroup>
-
-        <FormGroup>
-          <Label htmlFor="password">Password</Label>
-          <Input
+          <FormInput
+            label="Password"
             type="password"
-            id="password"
-            name="password"
             value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-            aria-invalid={!!validationErrors.password}
-            aria-describedby={validationErrors.password ? "password-error" : undefined}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            error={errors.password}
           />
-          {validationErrors.password && (
-            <small id="password-error" style={{ color: '#6d6875' }}>
-              {validationErrors.password}
-            </small>
-          )}
-        </FormGroup>
-
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-
-        <SubmitButton
-          type="submit"
-          isLoading={loading}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Logging in...
-            </>
-          ) : (
-            'Login'
-          )}
-        </SubmitButton>
-      </Form>
+          <AuthButton type="submit">Login</AuthButton>
+        </form>
+        <AuthLink>
+          Don't have an account? <a href="/signup">Sign up</a>
+        </AuthLink>
+      </AuthContent>
+    </AuthContainer>
   );
-};
-
-export default LoginPage;
+}

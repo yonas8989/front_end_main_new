@@ -142,7 +142,6 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Login to Your Account">
       <Form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="email">Email</Label>
@@ -199,7 +198,6 @@ const LoginPage: React.FC = () => {
           )}
         </SubmitButton>
       </Form>
-    </AuthLayout>
   );
 };
 

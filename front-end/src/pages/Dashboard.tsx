@@ -1,6 +1,4 @@
-// src/pages/Dashboard.tsx
 import React from "react";
-import AppLayout from "../components/Layout/AppLayout";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import styled from '@emotion/styled';
@@ -21,12 +19,12 @@ const DashboardPage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
 
   return (
-    <AppLayout>
-      <DashboardContainer>
-        <WelcomeMessage>Welcome, {user?.name || "Music Lover"}!</WelcomeMessage>
-        <p style={{ color: '#6d6875' }}>Browse your music collection using the filters in the sidebar.</p>
-      </DashboardContainer>
-    </AppLayout>
+    <DashboardContainer>
+      <WelcomeMessage>Welcome, {user?.name || "Music Lover"}!</WelcomeMessage>
+      <p style={{ color: '#6d6875' }}>
+        Browse your music collection using the filters in the sidebar.
+      </p>
+    </DashboardContainer>
   );
 };
 

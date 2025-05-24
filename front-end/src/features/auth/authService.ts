@@ -21,14 +21,6 @@ interface CurrentUserResponse extends ApiResponse {
   data: User;
 }
 
-// Custom error for authentication-specific issues
-class AuthError extends Error {
-  constructor(message: string, public code?: string) {
-    super(message);
-    this.name = "AuthError";
-  }
-}
-
 // Auth service interface for type safety
 interface AuthService {
   login: (credentials: LoginCredentials) => Promise<User>;
@@ -39,6 +31,37 @@ interface AuthService {
   getCurrentUser: () => Promise<User>;
   verifyEmail: (token: string) => Promise<void>;
 }
+
+const getErrorMessage = (error: any, defaultMessage: string): string => {
+  // First check if there's a direct error message from the API
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  
+  // Then check for specific status codes
+  if (error.response) {
+    switch (error.response.status) {
+      case 400:
+        return "Validation error. Please check your input.";
+      case 401:
+        return "Invalid credentials. Please try again.";
+      case 403:
+        return "You don't have permission to perform this action.";
+      case 404:
+        return "Resource not found.";
+      case 409:
+        return "This email is already registered. Please use a different email or log in.";
+      case 500:
+        return "Server error. Please try again later.";
+      default:
+        return defaultMessage;
+    }
+  } else if (error.request) {
+    return "Network error. Please check your internet connection.";
+  }
+  
+  return defaultMessage;
+};
 
 const authService: AuthService = {
   async login({ email, password, rememberMe }: LoginCredentials): Promise<User> {
@@ -53,26 +76,22 @@ const authService: AuthService = {
       }
       return data.data.user;
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Login failed",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Login failed. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 
   async register(userData: RegisterData): Promise<User> {
     try {
       const { data } = await api.post<RegisterResponse>(
-        "/auth/register",
+        "/api/v1/user",  // Changed to match your actual endpoint
         userData
       );
       localStorage.setItem("token", data.data.token);
       return data.data.user;
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Registration failed",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Registration failed. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 
@@ -91,10 +110,8 @@ const authService: AuthService = {
     try {
       await api.post("/auth/forgot-password", { email });
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Failed to send password reset email",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Failed to send password reset email. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 
@@ -105,10 +122,8 @@ const authService: AuthService = {
         newPassword,
       });
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Password reset failed",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Password reset failed. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 
@@ -117,10 +132,8 @@ const authService: AuthService = {
       const { data } = await api.get<CurrentUserResponse>("/auth/me");
       return data.data;
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Failed to fetch user",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Failed to fetch user information. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 
@@ -128,10 +141,8 @@ const authService: AuthService = {
     try {
       await api.post("/auth/verify-email", { token });
     } catch (error: any) {
-      throw new AuthError(
-        error.response?.data?.message || "Email verification failed",
-        error.response?.status
-      );
+      const errorMessage = getErrorMessage(error, "Email verification failed. Please try again.");
+      throw new Error(errorMessage);
     }
   },
 };

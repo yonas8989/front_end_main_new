@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 export const AuthContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #6d6875 0%, #b5838d 50%, #e5989b 100%);
+  background: linear-gradient(135deg, #315659 0%, #587b7f 50%, #a78682 100%);
 `;
 
 export const AuthContent = styled.div`
@@ -11,13 +11,13 @@ export const AuthContent = styled.div`
   max-width: 500px;
   margin: auto;
   padding: 2rem;
-  background-color: #ffcdb2;
+  background-color: #b3dec1;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(109, 104, 117, 0.3);
+  box-shadow: 0 4px 20px rgba(49, 86, 89, 0.3);
 `;
 
 export const AuthTitle = styled.h1`
-  color: #6d6875;
+  color: #56203d;
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
@@ -26,7 +26,7 @@ export const AuthTitle = styled.h1`
 export const AuthButton = styled.button`
   width: 100%;
   padding: 1rem;
-  background-color: #6d6875;
+  background-color: #56203d;
   color: white;
   border: none;
   border-radius: 4px;
@@ -35,17 +35,17 @@ export const AuthButton = styled.button`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #5a5560;
+    background-color: #3a1629;
   }
 `;
 
 export const AuthLink = styled.p`
   text-align: center;
   margin-top: 1rem;
-  color: #6d6875;
+  color: #315659;
 
   a {
-    color: #b5838d;
+    color: #a78682;
     text-decoration: none;
     font-weight: bold;
 
@@ -59,4 +59,14 @@ export const ErrorText = styled.p`
   color: #d62828;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+`;
+
+export const AuthError = styled.div`
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #56203d;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
 `;

@@ -24,20 +24,39 @@ const ErrorText = styled.div`
   margin-top: 0.25rem;
 `;
 
+// FormInput.tsx
 interface FormInputProps {
   label: string;
   type: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
+  error?: string | boolean;  // Accept both types
+  placeholder?: string;
+  name?: string;
 }
 
-export default function FormInput({ label, type, value, onChange, error }: FormInputProps) {
+export default function FormInput({
+  label,
+  type,
+  value,
+  onChange,
+  error,
+  name,
+  placeholder
+}: FormInputProps) {
+  const errorMessage = typeof error === 'string' ? error : error ? 'This field is required' : undefined;
+
   return (
     <InputContainer>
       <Label>{label}</Label>
-      <InputField type={type} value={value} onChange={onChange} />
-      {error && <ErrorText>{error}</ErrorText>}
+      <InputField
+        type={type}
+        value={value}
+        onChange={onChange}
+        name={name}
+        placeholder={placeholder}
+      />
+      {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
     </InputContainer>
   );
 }

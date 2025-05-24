@@ -1,4 +1,3 @@
-// src/redux/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   User,
@@ -32,6 +31,7 @@ const authSlice = createSlice({
     loginSuccess(state, action: PayloadAction<User>) {
       state.user = action.payload;
       state.loading = false;
+      state.isAuthenticated = true;
     },
     loginFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -44,6 +44,7 @@ const authSlice = createSlice({
     registerSuccess(state, action: PayloadAction<User>) {
       state.user = action.payload;
       state.loading = false;
+      state.isAuthenticated = true; // Set isAuthenticated to true
     },
     registerFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -56,6 +57,7 @@ const authSlice = createSlice({
     logoutSuccess(state) {
       state.user = null;
       state.loading = false;
+      state.isAuthenticated = false;
     },
     logoutFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -94,7 +96,6 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    // Add this to your authSlice reducers
     setAuthenticated(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload;
     },

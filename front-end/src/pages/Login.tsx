@@ -1,19 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { User } from '../types/auth';
 import { loginRequest, loginSuccess, loginFailure } from '../features/auth/authSlice';
 import { AuthContainer, AuthContent, AuthTitle, AuthButton, AuthLink } from '../components/Layout/AuthStyles';
 import FormInput from '../components/FormInput';
 
 interface LoginCredentials {
-  email: string;
+  emailOrPhoneNumber: string;
   password: string;
 }
 
 export default function Login() {
   const [formData, setFormData] = useState<LoginCredentials>({
-    email: '',
+    emailOrPhoneNumber: '',
     password: '',
   });
   const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
@@ -22,7 +21,7 @@ export default function Login() {
 
   const validate = (): boolean => {
     const newErrors: Partial<LoginCredentials> = {};
-    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.emailOrPhoneNumber) newErrors.emailOrPhoneNumber = 'Email or phone number is required';
     if (!formData.password) newErrors.password = 'Password is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -32,27 +31,37 @@ export default function Login() {
     e.preventDefault();
     if (!validate()) return;
 
-    try {
-      // Dispatch loginRequest with credentials payload
-      dispatch(loginRequest(formData));
-      
-      // Mock API call - replace with actual API call
-      const response = await new Promise<{ user: User }>((resolve) => 
-        setTimeout(() => resolve({ 
-          user: { 
-            id: '1', // Assuming User interface has an id
-            name: 'Test User', 
-            email: formData.email,
-            // Add any other required user fields
-          } 
-        }), 1000)
-      );
+    dispatch(loginRequest(formData));
 
-      // Dispatch loginSuccess with user data
-      dispatch(loginSuccess(response.user));
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+
+      // Construct user object based on your Redux store's expected structure
+      const user = {
+        id: data.data.user._id,
+        name: `${data.data.user.firstName} ${data.data.user.lastName}`,
+        email: data.data.user.email,
+        role: data.data.user.role,
+        token: data.token,
+        session: data.session,
+      };
+
+      dispatch(loginSuccess(user));
       navigate('/dashboard');
     } catch (error) {
-      // Dispatch loginFailure with error message
       dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));
     }
   };
@@ -63,11 +72,11 @@ export default function Login() {
         <AuthTitle>Login</AuthTitle>
         <form onSubmit={handleSubmit}>
           <FormInput
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            error={errors.email}
+            label="Email or Phone"
+            type="text"
+            value={formData.emailOrPhoneNumber}
+            onChange={(e) => setFormData({ ...formData, emailOrPhoneNumber: e.target.value })}
+            error={errors.emailOrPhoneNumber}
           />
           <FormInput
             label="Password"

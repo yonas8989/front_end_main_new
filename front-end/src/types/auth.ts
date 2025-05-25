@@ -2,7 +2,7 @@
 import { ApiResponse } from './api'; // Import from shared location
 
 export interface LoginCredentials {
-  email: string;
+  emailOrPhoneNumber: string;
   password: string;
   rememberMe?: boolean;
 }
@@ -25,5 +25,8 @@ export interface ResetPasswordData {
   token: string;
   newPassword: string;
 }
-
+export interface VerifyOTPData {
+  emailOrPhoneNumber: string;  // The email or phone number used during registration
+  otp: string;                // The one-time password received by the user
+}
 // Remove the local ApiResponse definition

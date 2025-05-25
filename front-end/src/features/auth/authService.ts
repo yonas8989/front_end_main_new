@@ -15,10 +15,15 @@ interface LoginResponse extends ApiResponse {
   };
 }
 
-interface RegisterResponse extends LoginResponse {}
+interface RegisterResponse {
+  user: User; // Simplified to match actual API response
+}
 
-interface CurrentUserResponse extends ApiResponse {
-  data: User;
+interface CurrentUserResponse {
+  status: string;
+  data: {
+    user: User;
+  };
 }
 
 // Auth service interface for type safety
@@ -28,7 +33,7 @@ interface AuthService {
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (data: ResetPasswordData) => Promise<void>;
-  getCurrentUser: () => Promise<User>;
+  getCurrentUser: (userId: string) => Promise<User>; // Added userId parameter
   verifyEmail: (token: string) => Promise<void>;
 }
 
@@ -37,7 +42,7 @@ const getErrorMessage = (error: any, defaultMessage: string): string => {
   if (error.response?.data?.message) {
     return error.response.data.message;
   }
-  
+
   // Then check for specific status codes
   if (error.response) {
     switch (error.response.status) {
@@ -59,38 +64,51 @@ const getErrorMessage = (error: any, defaultMessage: string): string => {
   } else if (error.request) {
     return "Network error. Please check your internet connection.";
   }
-  
+
   return defaultMessage;
 };
 
 const authService: AuthService = {
-  async login({ email, password, rememberMe }: LoginCredentials): Promise<User> {
+  async login({
+    emailOrPhoneNumber,
+    password,
+    rememberMe,
+  }: LoginCredentials): Promise<User> {
     try {
-      const { data } = await api.post<LoginResponse>(
-        "/auth/login",
-        { email, password }
-      );
+      const { data } = await api.post<LoginResponse>("/user/login", {
+        emailOrPhoneNumber,
+        password,
+      });
       localStorage.setItem("token", data.data.token);
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
       }
       return data.data.user;
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Login failed. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        error.message || "Login failed. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },
 
   async register(userData: RegisterData): Promise<User> {
     try {
-      const { data } = await api.post<RegisterResponse>(
-        "/api/v1/user",  // Changed to match your actual endpoint
-        userData
-      );
-      localStorage.setItem("token", data.data.token);
-      return data.data.user;
+      const { data } = await api.post<RegisterResponse>("/user", userData);
+
+      // Directly access the user object from response
+      if (data.user) {
+        return data.user;
+      }
+
+      console.log("API Response:", data);
+      throw new Error("User data missing in response");
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Registration failed. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        error.message || "Registration failed. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },
@@ -110,29 +128,46 @@ const authService: AuthService = {
     try {
       await api.post("/auth/forgot-password", { email });
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Failed to send password reset email. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to send password reset email. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },
 
-  async resetPassword({ token, newPassword }: ResetPasswordData): Promise<void> {
+  async resetPassword({
+    token,
+    newPassword,
+  }: ResetPasswordData): Promise<void> {
     try {
       await api.post("/auth/reset-password", {
         token,
         newPassword,
       });
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Password reset failed. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        "Password reset failed. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },
 
-  async getCurrentUser(): Promise<User> {
+  async getCurrentUser(userId: string): Promise<User> {
     try {
-      const { data } = await api.get<CurrentUserResponse>("/auth/me");
-      return data.data;
+      const { data } = await api.get<CurrentUserResponse>(`/user/${userId}`);
+      
+      if (data.data && data.data.user) {
+        return data.data.user;
+      }
+      
+      throw new Error("User data not found in response");
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Failed to fetch user information. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to fetch user information. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },
@@ -141,7 +176,10 @@ const authService: AuthService = {
     try {
       await api.post("/auth/verify-email", { token });
     } catch (error: any) {
-      const errorMessage = getErrorMessage(error, "Email verification failed. Please try again.");
+      const errorMessage = getErrorMessage(
+        error,
+        "Email verification failed. Please try again."
+      );
       throw new Error(errorMessage);
     }
   },

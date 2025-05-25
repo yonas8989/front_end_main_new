@@ -1,8 +1,8 @@
 import axios, { AxiosProgressEvent, AxiosResponse } from "axios";
 
 const baseURL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:3000/api/v1";
-const apiKey = process.env.REACT_APP_API_KEY || "";
+  process.env.REACT_APP_API_BASE_URL ;
+const apiKey = process.env.REACT_APP_API_KEY;
 
 // Only throw errors in production
 if (process.env.NODE_ENV === "production") {

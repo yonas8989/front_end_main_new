@@ -1,6 +1,6 @@
 // src/sagas/authSaga.ts
-import { call, put, takeLatest } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import { call, put, takeLatest } from "redux-saga/effects";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 import {
   loginRequest,
@@ -21,11 +21,18 @@ import {
   verifyEmailRequest,
   verifyEmailSuccess,
   verifyEmailFailure,
-} from '../auth/authSlice';
-import authService from '../auth/authService';
-import { LoginCredentials, User, RegisterData, ResetPasswordData } from '../../types/auth';
+} from "../auth/authSlice";
+import authService from "../auth/authService";
+import {
+  LoginCredentials,
+  User,
+  RegisterData,
+  ResetPasswordData,
+} from "../../types/auth";
 
-function* handleLogin(action: PayloadAction<LoginCredentials>): Generator<any, void, User> {
+function* handleLogin(
+  action: PayloadAction<LoginCredentials>
+): Generator<any, void, User> {
   try {
     const user = yield call(authService.login, action.payload);
     yield put(loginSuccess(user));
@@ -34,9 +41,12 @@ function* handleLogin(action: PayloadAction<LoginCredentials>): Generator<any, v
   }
 }
 
-function* handleRegister(action: PayloadAction<RegisterData>): Generator<any, void, User> {
+// src/features/auth/authSaga.ts
+function* handleRegister(
+  action: PayloadAction<RegisterData>
+): Generator<any, void, User> {
   try {
-    const user = yield call(authService.register, action.payload);
+    const user: User = yield call(authService.register, action.payload);
     yield put(registerSuccess(user));
   } catch (error) {
     yield put(registerFailure((error as Error).message));
@@ -52,7 +62,9 @@ function* handleLogout(): Generator<any, void, void> {
   }
 }
 
-function* handleForgotPassword(action: PayloadAction<string>): Generator<any, void, void> {
+function* handleForgotPassword(
+  action: PayloadAction<string>
+): Generator<any, void, void> {
   try {
     yield call(authService.forgotPassword, action.payload);
     yield put(forgotPasswordSuccess());
@@ -61,7 +73,9 @@ function* handleForgotPassword(action: PayloadAction<string>): Generator<any, vo
   }
 }
 
-function* handleResetPassword(action: PayloadAction<ResetPasswordData>): Generator<any, void, void> {
+function* handleResetPassword(
+  action: PayloadAction<ResetPasswordData>
+): Generator<any, void, void> {
   try {
     yield call(authService.resetPassword, action.payload);
     yield put(resetPasswordSuccess());
@@ -70,7 +84,9 @@ function* handleResetPassword(action: PayloadAction<ResetPasswordData>): Generat
   }
 }
 
-function* handleVerifyEmail(action: PayloadAction<string>): Generator<any, void, void> {
+function* handleVerifyEmail(
+  action: PayloadAction<string>
+): Generator<any, void, void> {
   try {
     yield call(authService.verifyEmail, action.payload);
     yield put(verifyEmailSuccess());

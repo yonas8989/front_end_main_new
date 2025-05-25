@@ -24,16 +24,16 @@ const ErrorText = styled.div`
   margin-top: 0.25rem;
 `;
 
-// FormInput.tsx
 interface FormInputProps {
   label: string;
-  type: string;
+  type?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string | boolean;  // Accept both types
+  error?: string | boolean;
   placeholder?: string;
   name?: string;
 }
+
 
 export default function FormInput({
   label,

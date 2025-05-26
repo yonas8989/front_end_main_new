@@ -1,9 +1,18 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginRequest, loginSuccess, loginFailure } from '../features/auth/authSlice';
-import { AuthContainer, AuthContent, AuthTitle, AuthButton, AuthLink } from '../components/Layout/AuthStyles';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginRequest } from '../features/auth/authSlice';
+import {
+  AuthContainer,
+  AuthContent,
+  AuthTitle,
+  AuthButton,
+  AuthLink,
+  AuthError,
+  ErrorText,
+} from '../components/Layout/AuthStyles';
 import FormInput from '../components/FormInput';
+import { RootState } from '../app/store';
 
 interface LoginCredentials {
   emailOrPhoneNumber: string;
@@ -19,50 +28,52 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Get auth state from Redux
+  const { isAuthenticated, loading, error: serverError } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  // Redirect to home if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true }); // Prevent back navigation to login
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Validate form fields
   const validate = (): boolean => {
     const newErrors: Partial<LoginCredentials> = {};
-    if (!formData.emailOrPhoneNumber) newErrors.emailOrPhoneNumber = 'Email or phone number is required';
-    if (!formData.password) newErrors.password = 'Password is required';
+    
+    if (!formData.emailOrPhoneNumber.trim()) {
+      newErrors.emailOrPhoneNumber = 'Email or phone number is required';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be 8+ characters';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
+    // Dispatch login action (Redux Saga will handle the API call)
     dispatch(loginRequest(formData));
+  };
 
-    try {
-      const response = await fetch('http://localhost:3000/api/v1/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await response.json();
-
-      // Construct user object based on your Redux store's expected structure
-      const user = {
-        id: data.data.user._id,
-        name: `${data.data.user.firstName} ${data.data.user.lastName}`,
-        email: data.data.user.email,
-        role: data.data.user.role,
-        token: data.token,
-        session: data.session,
-      };
-
-      dispatch(loginSuccess(user));
-      navigate('/dashboard');
-    } catch (error) {
-      dispatch(loginFailure(error instanceof Error ? error.message : 'Login failed'));
+  // Update form state and clear errors on typing
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (errors[name as keyof LoginCredentials]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -70,25 +81,40 @@ export default function Login() {
     <AuthContainer>
       <AuthContent>
         <AuthTitle>Login</AuthTitle>
+        
+        {serverError && <AuthError>{serverError}</AuthError>}
+
         <form onSubmit={handleSubmit}>
           <FormInput
-            label="Email or Phone"
+            label="Email or Phone Number"
+            name="emailOrPhoneNumber"
             type="text"
             value={formData.emailOrPhoneNumber}
-            onChange={(e) => setFormData({ ...formData, emailOrPhoneNumber: e.target.value })}
+            onChange={handleChange}
             error={errors.emailOrPhoneNumber}
           />
+          {errors.emailOrPhoneNumber && <ErrorText>{errors.emailOrPhoneNumber}</ErrorText>}
+
           <FormInput
             label="Password"
+            name="password"
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={handleChange}
             error={errors.password}
           />
-          <AuthButton type="submit">Login</AuthButton>
+          {errors.password && <ErrorText>{errors.password}</ErrorText>}
+
+          <AuthButton type="submit" disabled={loading}>
+            {loading ? 'Logging In...' : 'Login'}
+          </AuthButton>
         </form>
+
         <AuthLink>
-          Don't have an account? <a href="/signup">Sign up</a>
+          Don't have an account?{' '}
+          <Link to="/signup" style={{ color: '#a78682' }}>
+            Sign up
+          </Link>
         </AuthLink>
       </AuthContent>
     </AuthContainer>

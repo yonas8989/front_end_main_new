@@ -8,10 +8,18 @@ export interface LoginCredentials {
 }
 
 export interface User {
-  id: string;
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  name?: string;
-  [key: string]: any;
+  phoneNumber: string;
+  role: string;
+  isActive: boolean;
+  isEmailOrPhoneNumberChanged: boolean;
+  isPasswordChanged: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
 export interface RegisterData {

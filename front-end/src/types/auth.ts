@@ -1,5 +1,3 @@
-// src/types/auth.ts
-import { ApiResponse } from './api'; // Import from shared location
 
 export interface LoginCredentials {
   emailOrPhoneNumber: string;
@@ -34,7 +32,6 @@ export interface ResetPasswordData {
   newPassword: string;
 }
 export interface VerifyOTPData {
-  emailOrPhoneNumber: string;  // The email or phone number used during registration
-  otp: string;                // The one-time password received by the user
+  emailOrPhoneNumber: string;  
+  otp: string;                
 }
-// Remove the local ApiResponse definition

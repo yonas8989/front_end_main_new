@@ -1,23 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  User,
   LoginCredentials,
   RegisterData,
   ResetPasswordData,
+  VerifyOTPData,
+  User,
 } from "../../types/auth";
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   loading: boolean;
   error: string | null;
-  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
+  token: null,
   loading: false,
   error: null,
-  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -28,10 +29,12 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    loginSuccess(state, action: PayloadAction<User>) {
-      state.user = action.payload;
+    // In your authSlice reducers
+    loginSuccess(state, action: PayloadAction<{ user: User; token: string }>) {
+      state.user = action.payload.user;
+      state.token = action.payload.token; // Store token in Redux state
       state.loading = false;
-      state.isAuthenticated = true;
+      state.error = null;
     },
     loginFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -41,36 +44,26 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    registerSuccess(state, action: PayloadAction<User>) {
-      state.user = action.payload;
+    registerSuccess(
+      state,
+      action: PayloadAction<{ user: User; token: string }>
+    ) {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
       state.loading = false;
-      state.isAuthenticated = true; // Set isAuthenticated to true
     },
     registerFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
     },
-    logoutRequest(state) {
+    verifyOTPRequest(state, _action: PayloadAction<VerifyOTPData>) {
       state.loading = true;
       state.error = null;
     },
-    logoutSuccess(state) {
-      state.user = null;
-      state.loading = false;
-      state.isAuthenticated = false;
-    },
-    logoutFailure(state, action: PayloadAction<string>) {
-      state.error = action.payload;
+    verifyOTPSuccess(state, _action: PayloadAction<boolean>) {
       state.loading = false;
     },
-    forgotPasswordRequest(state, _action: PayloadAction<string>) {
-      state.loading = true;
-      state.error = null;
-    },
-    forgotPasswordSuccess(state) {
-      state.loading = false;
-    },
-    forgotPasswordFailure(state, action: PayloadAction<string>) {
+    verifyOTPFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
     },
@@ -85,19 +78,18 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    verifyEmailRequest(state, _action: PayloadAction<string>) {
+    logoutRequest(state) {
       state.loading = true;
       state.error = null;
     },
-    verifyEmailSuccess(state) {
+    logoutSuccess(state) {
+      state.user = null;
+      state.token = null;
       state.loading = false;
     },
-    verifyEmailFailure(state, action: PayloadAction<string>) {
+    logoutFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
-    },
-    setAuthenticated(state, action: PayloadAction<boolean>) {
-      state.isAuthenticated = action.payload;
     },
   },
 });
@@ -109,19 +101,15 @@ export const {
   registerRequest,
   registerSuccess,
   registerFailure,
-  logoutRequest,
-  logoutSuccess,
-  logoutFailure,
-  forgotPasswordRequest,
-  forgotPasswordSuccess,
-  forgotPasswordFailure,
+  verifyOTPRequest,
+  verifyOTPSuccess,
+  verifyOTPFailure,
   resetPasswordRequest,
   resetPasswordSuccess,
   resetPasswordFailure,
-  verifyEmailRequest,
-  verifyEmailSuccess,
-  verifyEmailFailure,
-  setAuthenticated,
+  logoutRequest,
+  logoutSuccess,
+  logoutFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

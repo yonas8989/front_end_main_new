@@ -1,35 +1,11 @@
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAppSelector } from '../features/auth/authHooks';
-import { PulseLoader } from 'react-spinners';
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../features/auth/authSelector";
 
 const ProtectedRoute = () => {
-  const location = useLocation(); // Proper way to get current location
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  if (loading) {
-    return (
-      <div css={css`
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      `}>
-        <PulseLoader color="#315659" size={15} />
-      </div>
-    );
-  }
-
-  return isAuthenticated ? (
-    <Outlet />
-  ) : (
-    <Navigate 
-      to="/login" 
-      replace 
-      state={{ from: location.pathname }} // Now using the hook-provided location
-    />
-  );
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

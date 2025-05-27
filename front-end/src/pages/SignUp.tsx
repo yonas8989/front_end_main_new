@@ -13,6 +13,11 @@ import {
 } from "../components/Layout/AuthStyles";
 import FormInput from "../components/FormInput";
 import { RootState } from "../app/store";
+import {
+  selectIsAuthenticated,
+  selectAuthLoading,
+  selectAuthError,
+} from "../features/auth/authSelector";
 
 interface SignupData {
   firstName: string;
@@ -37,25 +42,23 @@ export default function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get auth state from Redux
-  const { isAuthenticated, loading, error: serverError } = useSelector(
-    (state: RootState) => state.auth
-  );
+  // Use selectors
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const loading = useSelector(selectAuthLoading);
+  const serverError = useSelector(selectAuthError);
 
-  // Redirect to home if authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/", { replace: true }); // Prevent back navigation to signup
+      navigate("/login", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
-  // Validate form fields
   const validate = (): boolean => {
     const newErrors: Partial<SignupData> = {};
 
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -82,12 +85,10 @@ export default function Signup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    // Dispatch registration action (Redux Saga will handle the API call)
     dispatch(
       registerRequest({
         firstName: formData.firstName,
@@ -99,11 +100,10 @@ export default function Signup() {
     );
   };
 
-  // Update form state and clear errors on typing
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     if (errors[name as keyof SignupData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -113,7 +113,7 @@ export default function Signup() {
     <AuthContainer>
       <AuthContent>
         <AuthTitle>Create Account</AuthTitle>
-        
+
         {serverError && <AuthError>{serverError}</AuthError>}
 
         <form onSubmit={handleSubmit}>

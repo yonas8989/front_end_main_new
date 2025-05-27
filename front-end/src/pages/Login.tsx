@@ -13,6 +13,7 @@ import {
 } from '../components/Layout/AuthStyles';
 import FormInput from '../components/FormInput';
 import { RootState } from '../app/store';
+import { selectIsAuthenticated, selectAuthLoading, selectAuthError } from '../features/auth/authSelector';
 
 interface LoginCredentials {
   emailOrPhoneNumber: string;
@@ -28,10 +29,10 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get auth state from Redux
-  const { isAuthenticated, loading, error: serverError } = useSelector(
-    (state: RootState) => state.auth
-  );
+  // Get auth state from Redux using selectors
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const loading = useSelector(selectAuthLoading);
+  const serverError = useSelector(selectAuthError);
 
   // Redirect to home if authenticated
   useEffect(() => {

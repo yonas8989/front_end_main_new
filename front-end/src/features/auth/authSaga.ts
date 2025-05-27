@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from "redux-saga/effects";
+import { AxiosError } from "axios";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   loginSuccess,
@@ -58,9 +59,17 @@ function* handleLogin(action: PayloadAction<LoginCredentials>) {
     }
   } catch (error) {
     console.error("Login error:", error);
-    yield put(
-      loginFailure(error instanceof Error ? error.message : "Login failed")
-    );
+    let errorMessage = "Login failed";
+    
+    // Check if the error is an AxiosError with a response
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Invalid login credentials";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(loginFailure(errorMessage));
   }
 }
 
@@ -68,18 +77,14 @@ function* handleRegister(action: PayloadAction<RegisterData>) {
   try {
     const response: ApiResponse<{
       user: User;
-      token: string;
     }> = yield call(api.post, "/user", action.payload);
     console.log("Raw API response:", JSON.stringify(response, null, 2));
 
     if (response.status === "SUCCESS") {
-      if (response.data.token) {
-        storeToken(response.data.token);
-      }
+      // Proceed with registration success even without token
       yield put(
         registerSuccess({
           user: response.data.user,
-          token: response.data.token,
         })
       );
     } else {
@@ -87,11 +92,17 @@ function* handleRegister(action: PayloadAction<RegisterData>) {
     }
   } catch (error) {
     console.error("Register error:", error);
-    yield put(
-      registerFailure(
-        error instanceof Error ? error.message : "Registration failed"
-      )
-    );
+    let errorMessage = "Registration failed";
+    
+    // Check if the error is an AxiosError with a response
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Registration failed";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(registerFailure(errorMessage));
   }
 }
 
@@ -156,9 +167,17 @@ function* handleLogout() {
     }
   } catch (error) {
     console.error("Logout error:", error);
-    yield put(
-      logoutFailure(error instanceof Error ? error.message : "Logout failed")
-    );
+    let errorMessage = "Logout failed";
+    
+    // Check if the error is an AxiosError with a response
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Logout failed";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(logoutFailure(errorMessage));
   }
 }
 

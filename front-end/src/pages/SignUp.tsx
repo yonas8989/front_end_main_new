@@ -18,6 +18,7 @@ import {
   selectAuthLoading,
   selectAuthError,
 } from "../features/auth/authSelector";
+import { link } from "fs";
 
 interface SignupData {
   firstName: string;
@@ -47,16 +48,11 @@ export default function Signup() {
   const loading = useSelector(selectAuthLoading);
   const serverError = useSelector(selectAuthError);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
-
   const validate = (): boolean => {
     const newErrors: Partial<SignupData> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
 
     if (!formData.email.trim()) {
@@ -98,14 +94,15 @@ export default function Signup() {
         password: formData.password,
       })
     );
+    navigate("/login", { replace: true });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name as keyof SignupData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 

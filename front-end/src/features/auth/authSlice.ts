@@ -14,6 +14,7 @@ interface AuthState {
   error: string | null;
 }
 
+
 const initialState: AuthState = {
   user: null,
   token: null,
@@ -46,10 +47,9 @@ const authSlice = createSlice({
     },
     registerSuccess(
       state,
-      action: PayloadAction<{ user: User; token: string }>
+      action: PayloadAction<{ user: User;  }>
     ) {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       state.loading = false;
     },
     registerFailure(state, action: PayloadAction<string>) {

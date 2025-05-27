@@ -15,6 +15,10 @@ export interface SongPayload {
   artist?: string;
   album?: string;
   genre?: string;
+  duration?: number;
+  releaseYear?: number;
+  fileUrl?: string;
+  coverImageUrl?: string;
 }
 
 export interface Filters {

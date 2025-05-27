@@ -1,7 +1,9 @@
 import styled from '@emotion/styled';
-import { space, layout, typography, color, border, flexbox, SpaceProps, LayoutProps, TypographyProps, ColorProps, BorderProps, FlexboxProps } from 'styled-system';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addSongRequest } from '../features/song/songSlice';
+import { RootState } from '../app/store';
 
 // Theme colors
 const colors = {
@@ -12,241 +14,301 @@ const colors = {
   neutral: '#587b7f'
 };
 
-// Form Container
-const FormContainer = styled.div<LayoutProps & SpaceProps>`
-  max-width: 800px;
+// Basic form styling
+const FormContainer = styled.div`
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem;
-  ${layout}
-  ${space}
 `;
 
-const FormTitle = styled.h1<TypographyProps & ColorProps & SpaceProps>`
-  font-size: 2.5rem;
-  color: ${colors.primary};
-  margin-bottom: 2rem;
-  text-align: center;
-  ${typography}
-  ${color}
-  ${space}
-`;
-
-const Form = styled.form<SpaceProps>`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  ${space}
+  gap: 1rem;
 `;
 
-const FormGroup = styled.div<SpaceProps & FlexboxProps>`
+const FormColumns = styled.div`
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const FormColumn = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  ${space}
-  ${flexbox}
 `;
 
-const Label = styled.label<TypographyProps & ColorProps>`
-  font-size: 1.1rem;
-  color: ${colors.primary};
-  ${typography}
-  ${color}
-`;
-
-const Input = styled.input<SpaceProps & BorderProps & ColorProps>`
+const Input = styled.input`
   padding: 0.75rem;
-  border: 2px solid ${colors.secondary};
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+  width: 100%;
 
   &:focus {
     outline: none;
     border-color: ${colors.primary};
+    box-shadow: 0 0 0 2px ${colors.accent};
   }
-
-  ${space}
-  ${border}
-  ${color}
 `;
 
-const TextArea = styled.textarea<SpaceProps & BorderProps & ColorProps>`
+const Select = styled.select`
   padding: 0.75rem;
-  border: 2px solid ${colors.secondary};
+  border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem;
-  min-height: 120px;
-  resize: vertical;
-  transition: border-color 0.3s ease;
+  width: 100%;
 
   &:focus {
     outline: none;
     border-color: ${colors.primary};
+    box-shadow: 0 0 0 2px ${colors.accent};
   }
-
-  ${space}
-  ${border}
-  ${color}
 `;
 
-const ButtonGroup = styled.div<SpaceProps & FlexboxProps>`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  ${space}
-  ${flexbox}
-`;
-
-const SubmitButton = styled.button<ColorProps & SpaceProps & TypographyProps>`
-  background-color: ${colors.primary};
-  color: white;
+const Button = styled.button`
+  padding: 0.75rem;
   border: none;
-  padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  flex: 1;
 
   &:hover {
-    background-color: ${colors.neutral};
+    opacity: 0.9;
   }
-
-  ${color}
-  ${space}
-  ${typography}
 `;
 
-const CancelButton = styled.button<ColorProps & SpaceProps & TypographyProps>`
-  background-color: ${colors.secondary};
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  flex: 1;
-
-  &:hover {
-    background-color: ${colors.dark};
-  }
-
-  ${color}
-  ${space}
-  ${typography}
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
 `;
 
 export const AddSong = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { error } = useSelector((state: RootState) => state.songs);
   const [formData, setFormData] = useState({
     title: '',
     artist: '',
     album: '',
     genre: '',
-    year: '',
-    lyrics: ''
+    duration: '',
+    releaseYear: '',
+    fileUrl: '',
+    coverImageUrl: ''
   });
+  const [localError, setLocalError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Common music genres for the dropdown
+  const genres = [
+    'Pop',
+    'Rock',
+    'Hip-Hop',
+    'R&B',
+    'Electronic',
+    'Jazz',
+    'Classical',
+    'Country',
+    'Blues',
+    'Reggae',
+    'Metal',
+    'Folk',
+    'Alternative',
+    'Indie',
+    'Other'
+  ];
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (localError) setLocalError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add song submission logic
-    console.log('Song added:', formData);
-    navigate('/songs');
+    setLocalError(''); // Clear previous errors
+
+    // Basic validation
+    if (!formData.title.trim()) {
+      setLocalError('Title is required');
+      return;
+    }
+    if (!formData.artist.trim()) {
+      setLocalError('Artist is required');
+      return;
+    }
+    if (!formData.genre) {
+      setLocalError('Genre is required');
+      return;
+    }
+    if (!formData.duration || isNaN(parseInt(formData.duration))) {
+      setLocalError('Valid duration is required');
+      return;
+    }
+    if (!formData.releaseYear || isNaN(parseInt(formData.releaseYear))) {
+      setLocalError('Valid release year is required');
+      return;
+    }
+    if (!formData.fileUrl) {
+      setLocalError('File URL is required');
+      return;
+    }
+
+    try {
+      const result = await dispatch(addSongRequest({
+        title: formData.title,
+        artist: formData.artist,
+        album: formData.album,
+        genre: formData.genre,
+        duration: parseInt(formData.duration),
+        releaseYear: parseInt(formData.releaseYear),
+        fileUrl: formData.fileUrl,
+        coverImageUrl: formData.coverImageUrl
+      }));
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setLocalError('Failed to add song. Please try again.');
+    }
   };
 
   return (
     <FormContainer>
-      <FormTitle color={colors.primary} mb={4}>Add New Song</FormTitle>
+      <h1>Add New Song</h1>
       <Form onSubmit={handleSubmit}>
-        <FormGroup>
-          <Label color={colors.primary}>Title</Label>
-          <Input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+        {(error || localError) && (
+          <ErrorMessage>
+            {error || localError}
+          </ErrorMessage>
+        )}
+        
+        <FormColumns>
+          <FormColumn>
+            <FormGroup>
+              <label>Title</label>
+              <Input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
+            </FormGroup>
 
-        <FormGroup>
-          <Label color={colors.primary}>Artist</Label>
-          <Input
-            type="text"
-            name="artist"
-            value={formData.artist}
-            onChange={handleChange}
-            required
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+            <FormGroup>
+              <label>Artist</label>
+              <Input
+                type="text"
+                name="artist"
+                value={formData.artist}
+                onChange={handleChange}
+                required
+              />
+            </FormGroup>
 
-        <FormGroup>
-          <Label color={colors.primary}>Album</Label>
-          <Input
-            type="text"
-            name="album"
-            value={formData.album}
-            onChange={handleChange}
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+            <FormGroup>
+              <label>Album</label>
+              <Input
+                type="text"
+                name="album"
+                value={formData.album}
+                onChange={handleChange}
+              />
+            </FormGroup>
 
-        <FormGroup>
-          <Label color={colors.primary}>Genre</Label>
-          <Input
-            type="text"
-            name="genre"
-            value={formData.genre}
-            onChange={handleChange}
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+            <FormGroup>
+              <label>Genre</label>
+              <Select
+                name="genre"
+                value={formData.genre}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select a genre</option>
+                {genres.map(genre => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </Select>
+            </FormGroup>
+          </FormColumn>
 
-        <FormGroup>
-          <Label color={colors.primary}>Year</Label>
-          <Input
-            type="number"
-            name="year"
-            value={formData.year}
-            onChange={handleChange}
-            min="1900"
-            max={new Date().getFullYear()}
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+          <FormColumn>
+            <FormGroup>
+              <label>Duration (seconds)</label>
+              <Input
+                type="number"
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                min="1"
+                required
+              />
+            </FormGroup>
 
-        <FormGroup>
-          <Label color={colors.primary}>Lyrics</Label>
-          <TextArea
-            name="lyrics"
-            value={formData.lyrics}
-            onChange={handleChange}
-            borderColor={colors.secondary}
-            p={2}
-          />
-        </FormGroup>
+            <FormGroup>
+              <label>Release Year</label>
+              <Input
+                type="number"
+                name="releaseYear"
+                value={formData.releaseYear}
+                onChange={handleChange}
+                min="1900"
+                max={new Date().getFullYear()}
+                required
+              />
+            </FormGroup>
 
-        <ButtonGroup>
-          <SubmitButton type="submit" bg={colors.primary} px={4} py={2}>
+            <FormGroup>
+              <label>File URL</label>
+              <Input
+                type="url"
+                name="fileUrl"
+                value={formData.fileUrl}
+                onChange={handleChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label>Cover Image URL</label>
+              <Input
+                type="url"
+                name="coverImageUrl"
+                value={formData.coverImageUrl}
+                onChange={handleChange}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormColumns>
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <Button 
+            type="submit" 
+            style={{ background: colors.primary, color: 'white' }}
+          >
             Add Song
-          </SubmitButton>
-          <CancelButton type="button" bg={colors.secondary} px={4} py={2} onClick={() => navigate('/songs')}>
+          </Button>
+          <Button 
+            type="button" 
+            style={{ background: colors.secondary, color: 'white' }}
+            onClick={() => navigate('/songs')}
+          >
             Cancel
-          </CancelButton>
-        </ButtonGroup>
+          </Button>
+        </div>
       </Form>
     </FormContainer>
   );

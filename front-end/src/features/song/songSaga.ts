@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from "redux-saga/effects";
+import { AxiosError } from "axios";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchSongsSuccess,
@@ -16,70 +17,120 @@ import {
 } from "../song/songSlice";
 import { api } from "../../api/apiClient";
 import { Song, SongPayload } from "../../types/song";
+import { ApiResponse } from "../../types/api";
 
-function* handleApiError(
-  error: unknown,
-  failureAction: (payload: string) => PayloadAction<string>
-) {
-  const errorMessage = error instanceof Error 
-    ? error.message 
-    : 'An unexpected error occurred';
-  
-  yield put(failureAction(errorMessage));
-}
-
-function* fetchSongs() {
+function* handleFetchSongs() {
   try {
-    const songs: Song[] = yield call(api.get, "/songs");
-    yield put(fetchSongsSuccess(songs));
+    const response: ApiResponse<Song[]> = yield call(api.get, "/songs");
+
+    if (response.status === "SUCCESS") {
+      yield put(fetchSongsSuccess(response.data));
+    } else {
+      throw new Error(response.message || "Failed to fetch songs");
+    }
   } catch (error) {
-    yield handleApiError(error, fetchSongsFailure);
+    console.error("Fetch songs error:", error);
+    let errorMessage = "Failed to fetch songs";
+    
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Failed to fetch songs";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(fetchSongsFailure(errorMessage));
   }
 }
 
-function* addSong(action: PayloadAction<SongPayload>) {
+function* handleAddSong(action: PayloadAction<SongPayload>) {
   try {
     const { title } = action.payload;
     if (!title?.trim()) {
       yield put(addSongFailure("Song title is required"));
       return;
     }
-    
-    const newSong: Song = yield call(api.post, "/songs", action.payload);
-    yield put(addSongSuccess(newSong));
+
+    const response: ApiResponse<Song> = yield call(api.post, "/songs", action.payload);
+
+    if (response.status === "SUCCESS") {
+      yield put(addSongSuccess(response.data));
+    } else {
+      throw new Error(response.message || "Failed to add song");
+    }
   } catch (error) {
-    yield handleApiError(error, addSongFailure);
+    console.error("Add song error:", error);
+    let errorMessage = "Failed to add song";
+    
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Failed to add song";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(addSongFailure(errorMessage));
   }
 }
 
-function* editSong(action: PayloadAction<SongPayload & { id: string }>) {
+function* handleEditSong(action: PayloadAction<SongPayload & { id: string }>) {
   try {
     const { id, title } = action.payload;
     if (!title?.trim()) {
       yield put(editSongFailure("Song title is required"));
       return;
     }
-    
+
     const { id: _, ...updatedSong } = action.payload;
-    const song: Song = yield call(api.put, `/songs/${id}`, updatedSong);
-    yield put(editSongSuccess(song));
+    const response: ApiResponse<Song> = yield call(api.put, `/songs/${id}`, updatedSong);
+
+    if (response.status === "SUCCESS") {
+      yield put(editSongSuccess(response.data));
+    } else {
+      throw new Error(response.message || "Failed to edit song");
+    }
   } catch (error) {
-    yield handleApiError(error, editSongFailure);
+    console.error("Edit song error:", error);
+    let errorMessage = "Failed to edit song";
+    
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Failed to edit song";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(editSongFailure(errorMessage));
   }
 }
 
-function* deleteSong(action: PayloadAction<string>) {
+function* handleDeleteSong(action: PayloadAction<string>) {
   try {
-    yield call(api.delete, `/songs/${action.payload}`);
-    yield put(deleteSongSuccess(action.payload));
+    const response: ApiResponse<{}> = yield call(api.delete, `/songs/${action.payload}`);
+
+    if (response.status === "SUCCESS") {
+      yield put(deleteSongSuccess(action.payload));
+    } else {
+      throw new Error(response.message || "Failed to delete song");
+    }
   } catch (error) {
-    yield handleApiError(error, deleteSongFailure);
+    console.error("Delete song error:", error);
+    let errorMessage = "Failed to delete song";
+    
+    if (error instanceof AxiosError && error.response?.data) {
+      const apiResponse: ApiResponse<{}> = error.response.data;
+      errorMessage = apiResponse.message || "Failed to delete song";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    yield put(deleteSongFailure(errorMessage));
   }
 }
 
 export default function* songSaga() {
-  yield takeEvery(fetchSongsRequest.type, fetchSongs);
-  yield takeEvery(addSongRequest.type, addSong);
-  yield takeEvery(editSongRequest.type, editSong);
-  yield takeEvery(deleteSongRequest.type, deleteSong);
+  yield takeEvery(fetchSongsRequest.type, handleFetchSongs);
+  yield takeEvery(addSongRequest.type, handleAddSong);
+  yield takeEvery(editSongRequest.type, handleEditSong);
+  yield takeEvery(deleteSongRequest.type, handleDeleteSong);
 }

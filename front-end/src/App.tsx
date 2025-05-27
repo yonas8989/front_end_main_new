@@ -9,10 +9,13 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider, useSelector, useDispatch } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import store from "./app/store";
 import "react-toastify/dist/ReactToastify.css";
+import { RootState } from "./app/store";
+import { selectIsAuthenticated, selectAuthLoading } from "./features/auth/authSelector";
+import { logoutRequest } from "./features/auth/authSlice";
 
 // Components
 import { Footer } from "./components/Footer";
@@ -58,26 +61,37 @@ const toastStyles = css`
   }
 `;
 
-// New component to handle routing logic
 const AppContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isAuthenticated = false; // Replace with your actual auth state
+  const dispatch = useDispatch();
+  
+  // Select auth state from Redux store
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isLoading = useSelector(selectAuthLoading);
 
   const handleLoginClick = () => navigate("/login");
   const handleSignUpClick = () => navigate("/signup");
-  const handleLogoutClick = () => {
-    // Add your logout logic here
-    navigate("/");
+  const handleLogoutClick = async () => {
+    try {
+      await dispatch(logoutRequest());
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
   const handleLogoClick = () => navigate("/");
   const handleNavClick = (page: string) => navigate(`/${page}`);
+
+  // Get current page for active nav link highlighting
+  const currentPage = location.pathname.split("/")[1] || "home";
 
   return (
     <AppContainer>
       <Header
         isAuthenticated={isAuthenticated}
-        currentPage={location.pathname.split("/")[1] || "home"}
+        currentPage={currentPage}
+        isLoading={isLoading}
         onLoginClick={handleLoginClick}
         onSignUpClick={handleSignUpClick}
         onLogoutClick={handleLogoutClick}
@@ -91,9 +105,6 @@ const AppContent = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          {/* <Route path="/songs" element={<SongList />} />
-                      <Route path="/songs/add" element={<AddSong />} />
-                     <Route path="/songs/edit/:id" element={<EditSong />} /> */}
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>

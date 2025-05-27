@@ -18,6 +18,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   __v?: number;
+  avatar?: string;
 }
 
 export interface RegisterData {

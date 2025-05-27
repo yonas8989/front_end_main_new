@@ -17,6 +17,7 @@ import {
   verifyOTPRequest,
   resetPasswordRequest,
   logoutRequest,
+  clientLogout,
 } from "./authSlice";
 import { api } from "../../api/apiClient";
 import {
@@ -28,9 +29,13 @@ import {
 } from "../../types/auth";
 import { ApiResponse } from "../../types/api";
 
-// Helper function to store token in localStorage
+// Token management functions
 function storeToken(token: string) {
   localStorage.setItem("token", token);
+}
+
+function clearToken() {
+  localStorage.removeItem("token");
 }
 
 function* handleLogin(action: PayloadAction<LoginCredentials>) {
@@ -41,13 +46,11 @@ function* handleLogin(action: PayloadAction<LoginCredentials>) {
     }> = yield call(api.post, "/user/login", action.payload);
 
     if (response.status === "SUCCESS") {
-      if (response.token) {
-        storeToken(response.token);
-      }
       if (!response.token) {
         throw new Error("Token missing in login response");
       }
-
+      
+      storeToken(response.token);
       yield put(
         loginSuccess({
           user: response.data.user,
@@ -61,7 +64,6 @@ function* handleLogin(action: PayloadAction<LoginCredentials>) {
     console.error("Login error:", error);
     let errorMessage = "Login failed";
     
-    // Check if the error is an AxiosError with a response
     if (error instanceof AxiosError && error.response?.data) {
       const apiResponse: ApiResponse<{}> = error.response.data;
       errorMessage = apiResponse.message || "Invalid login credentials";
@@ -75,13 +77,9 @@ function* handleLogin(action: PayloadAction<LoginCredentials>) {
 
 function* handleRegister(action: PayloadAction<RegisterData>) {
   try {
-    const response: ApiResponse<{
-      user: User;
-    }> = yield call(api.post, "/user", action.payload);
-    console.log("Raw API response:", JSON.stringify(response, null, 2));
+    const response: ApiResponse<{ user: User }> = yield call(api.post, "/user", action.payload);
 
     if (response.status === "SUCCESS") {
-      // Proceed with registration success even without token
       yield put(
         registerSuccess({
           user: response.data.user,
@@ -94,7 +92,6 @@ function* handleRegister(action: PayloadAction<RegisterData>) {
     console.error("Register error:", error);
     let errorMessage = "Registration failed";
     
-    // Check if the error is an AxiosError with a response
     if (error instanceof AxiosError && error.response?.data) {
       const apiResponse: ApiResponse<{}> = error.response.data;
       errorMessage = apiResponse.message || "Registration failed";
@@ -113,7 +110,6 @@ function* handleVerifyOTP(action: PayloadAction<VerifyOTPData>) {
       "/auth/verify-otp",
       action.payload
     );
-    console.log("Raw API response:", JSON.stringify(response, null, 2));
 
     if (response.status === "SUCCESS") {
       yield put(verifyOTPSuccess(response.data.verified));
@@ -137,7 +133,6 @@ function* handleResetPassword(action: PayloadAction<ResetPasswordData>) {
       "/auth/reset-password",
       action.payload
     );
-    console.log("Raw API response:", JSON.stringify(response, null, 2));
 
     if (response.status === "SUCCESS") {
       yield put(resetPasswordSuccess());
@@ -156,20 +151,25 @@ function* handleResetPassword(action: PayloadAction<ResetPasswordData>) {
 
 function* handleLogout() {
   try {
-    const response: ApiResponse<{}> = yield call(api.post, "/auth/logout");
-    console.log("Raw API response:", JSON.stringify(response, null, 2));
-
-    if (response.status === "SUCCESS") {
-      localStorage.removeItem("authToken");
-      yield put(logoutSuccess());
-    } else {
-      throw new Error(response.message || "Logout failed");
+    const token = localStorage.getItem("token");
+    
+    // Only call backend logout if we have a token
+    if (token) {
+      const response: ApiResponse<{}> = yield call(api.post, "/auth/logout");
+      
+      if (response.status !== "SUCCESS") {
+        throw new Error(response.message || "Logout failed");
+      }
     }
+    
+    // Clear token and update state regardless of backend result
+    clearToken();
+    yield put(logoutSuccess());
+    
   } catch (error) {
     console.error("Logout error:", error);
     let errorMessage = "Logout failed";
     
-    // Check if the error is an AxiosError with a response
     if (error instanceof AxiosError && error.response?.data) {
       const apiResponse: ApiResponse<{}> = error.response.data;
       errorMessage = apiResponse.message || "Logout failed";
@@ -177,8 +177,16 @@ function* handleLogout() {
       errorMessage = error.message;
     }
 
+    // Still clear token even if backend logout failed
+    clearToken();
     yield put(logoutFailure(errorMessage));
   }
+}
+
+// Client-side only logout handler
+function* handleClientLogout() {
+  clearToken();
+  yield put(logoutSuccess());
 }
 
 export default function* authSaga() {
@@ -187,4 +195,5 @@ export default function* authSaga() {
   yield takeEvery(verifyOTPRequest.type, handleVerifyOTP);
   yield takeEvery(resetPasswordRequest.type, handleResetPassword);
   yield takeEvery(logoutRequest.type, handleLogout);
+  yield takeEvery(clientLogout.type, handleClientLogout);
 }

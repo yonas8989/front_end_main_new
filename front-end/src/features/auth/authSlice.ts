@@ -14,7 +14,6 @@ interface AuthState {
   error: string | null;
 }
 
-
 const initialState: AuthState = {
   user: null,
   token: null,
@@ -30,10 +29,9 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    // In your authSlice reducers
     loginSuccess(state, action: PayloadAction<{ user: User; token: string }>) {
       state.user = action.payload.user;
-      state.token = action.payload.token; // Store token in Redux state
+      state.token = action.payload.token;
       state.loading = false;
       state.error = null;
     },
@@ -45,10 +43,7 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    registerSuccess(
-      state,
-      action: PayloadAction<{ user: User;  }>
-    ) {
+    registerSuccess(state, action: PayloadAction<{ user: User }>) {
       state.user = action.payload.user;
       state.loading = false;
     },
@@ -91,6 +86,11 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    // Add client-side logout action
+    clientLogout(state) {
+      state.user = null;
+      state.token = null;
+    }
   },
 });
 
@@ -110,6 +110,7 @@ export const {
   logoutRequest,
   logoutSuccess,
   logoutFailure,
+  clientLogout,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,6 +1,8 @@
+// src/features/song/songSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Song, SongPayload, Filters } from '../../types/song';
 
+// src/features/song/songSlice.ts
 interface SongState {
   songs: Song[];
   filters: Filters;
@@ -9,11 +11,11 @@ interface SongState {
 }
 
 const initialState: SongState = {
-  songs: [],
+  songs: [], // This should store the array directly
   filters: {
     album: '',
-    genre: '',
     artist: '',
+    genre: ''
   },
   loading: false,
   error: null,

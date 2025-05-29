@@ -1,101 +1,66 @@
+// src/features/song/songSelectors.ts
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import { Song, Filters } from '../../types/song';
 
+// Basic selectors with proper type safety
+export const selectSongState = (state: RootState) => state.songs;
 
-
-// Use RootState type instead of the store instance
-const selectSongsState = (state: RootState) => state.songs;
-
-export const selectAllSongs = createSelector(
-  [selectSongsState],
-  (songsState): Song[] => songsState.songs
-);
-
-export const selectFilters = createSelector(
-  [selectSongsState],
-  (songsState): Filters => songsState.filters
-);
-
-export const selectSongsLoading = createSelector(
-  [selectSongsState],
-  (songsState): boolean => songsState.loading
-);
-
-export const selectSongsError = createSelector(
-  [selectSongsState],
-  (songsState): string | null => songsState.error
-);
+export const selectSongs = (state: RootState): Song[] => state.songs.songs || [];
+export const selectFilters = (state: RootState): Filters => state.songs.filters || {
+  album: '',
+  artist: '',
+  genre: ''
+};
+export const selectLoading = (state: RootState): boolean => state.songs.loading;
+export const selectError = (state: RootState): string | null => state.songs.error;
 
 export const selectFilteredSongs = createSelector(
-  [selectAllSongs, selectFilters],
-  (songs, filters): Song[] => {
-    if (songs.length === 0) return [];
-
-    const { album = '', genre = '', artist = '' } = filters;
-    const lowerAlbum = album.toLowerCase();
-    const lowerGenre = genre.toLowerCase();
-    const lowerArtist = artist.toLowerCase();
+  [selectSongs, selectFilters],
+  (songs: Song[], filters: Filters): Song[] => {
+    if (!Array.isArray(songs)) {
+      console.error('Songs is not an array:', songs);
+      return [];
+    }
 
     return songs.filter((song) => {
-      const songAlbum = song.album?.toLowerCase() ?? '';
-      const songGenre = song.genre?.toLowerCase() ?? '';
-      const songArtist = song.artist?.toLowerCase() ?? '';
+      const matchesAlbum = !filters.album || 
+        (song.album && song.album.toLowerCase().includes(filters.album.toLowerCase()));
+      const matchesGenre = !filters.genre || 
+        song.genre.toLowerCase().includes(filters.genre.toLowerCase());
+      const matchesArtist = !filters.artist || 
+        song.artist.toLowerCase().includes(filters.artist.toLowerCase());
 
-      return (
-        (lowerAlbum === '' || songAlbum.includes(lowerAlbum)) &&
-        (lowerGenre === '' || songGenre.includes(lowerGenre)) &&
-        (lowerArtist === '' || songArtist.includes(lowerArtist))
-      );
+      return matchesAlbum && matchesGenre && matchesArtist;
     });
   }
 );
 
-// Updated selectors using Array.from() with Set
-export const selectUniqueAlbums = createSelector(
-  [selectAllSongs],
-  (songs): string[] => {
-    if (songs.length === 0) return [];
-    const albums = songs
-      .map((song) => song.album?.trim())
-      .filter((album): album is string => !!album);
-    return Array.from(new Set(albums)).sort();
-  }
-);
+// Selector to get a song by ID
+export const selectSongById = (id: string) =>
+  createSelector([selectSongs], (songs: Song[]) => 
+    songs.find((song) => song.id === id)
+  );
 
-export const selectUniqueGenres = createSelector(
-  [selectAllSongs],
-  (songs): string[] => {
-    if (songs.length === 0) return [];
-    const genres = songs
-      .map((song) => song.genre?.trim())
-      .filter((genre): genre is string => !!genre);
-    return Array.from(new Set(genres)).sort();
-  }
-);
+// Selector to get unique genres
+export const selectUniqueGenres = createSelector([selectSongs], (songs: Song[]) => {
+  if (!Array.isArray(songs)) return [];
+  const genres = songs.map((song) => song.genre);
+  return Array.from(new Set(genres)).sort();
+});
 
-export const selectUniqueArtists = createSelector(
-  [selectAllSongs],
-  (songs): string[] => {
-    if (songs.length === 0) return [];
-    const artists = songs
-      .map((song) => song.artist?.trim())
-      .filter((artist): artist is string => !!artist);
-    return Array.from(new Set(artists)).sort();
-  }
-);
+// Selector to get unique artists
+export const selectUniqueArtists = createSelector([selectSongs], (songs: Song[]) => {
+  if (!Array.isArray(songs)) return [];
+  const artists = songs.map((song) => song.artist);
+  return Array.from(new Set(artists)).sort();
+});
 
-export const selectCurrentFilters = createSelector(
-  [selectFilters],
-  (filters): Filters => filters
-);
-
-export const selectFilteredSongsCount = createSelector(
-  [selectFilteredSongs],
-  (filteredSongs): number => filteredSongs.length
-);
-
-export const selectTotalSongsCount = createSelector(
-  [selectAllSongs],
-  (songs): number => songs.length
-);
+// Selector to get unique albums
+export const selectUniqueAlbums = createSelector([selectSongs], (songs: Song[]) => {
+  if (!Array.isArray(songs)) return [];
+  const albums = songs
+    .map((song) => song.album || '')
+    .filter(album => album.trim() !== '');
+  return Array.from(new Set(albums)).sort();
+});

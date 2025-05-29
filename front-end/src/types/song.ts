@@ -4,9 +4,14 @@ import { ApiResponse } from './api'; // Import from shared location
 export interface Song {
   id: string;
   title: string;
-  artist?: string;
+  artist: string;
   album?: string;
-  genre?: string;
+  genre: string;
+  duration: number;
+  releaseYear: number;
+  fileUrl: string;
+  coverImageUrl?: string;
+
 }
 
 export interface SongPayload {

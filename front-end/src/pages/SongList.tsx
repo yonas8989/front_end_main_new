@@ -119,7 +119,7 @@ export const SongList = () => {
 
   useEffect(() => {
     dispatch(fetchSongsRequest());
-  }, [dispatch]);
+  }, []);
 
   const handleFilterChange = (filterType: keyof typeof currentFilters, value: string | null) => {
     dispatch(updateFilters({ [filterType]: value || '' }));

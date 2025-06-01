@@ -1,5 +1,5 @@
 // src/types/song.ts
-import { ApiResponse } from './api'; // Import from shared location
+import { ApiResponse } from './api';
 
 export interface Song {
   id: string;
@@ -11,7 +11,6 @@ export interface Song {
   releaseYear: number;
   fileUrl: string;
   coverImageUrl?: string;
-
 }
 
 export interface SongPayload {
@@ -32,4 +31,30 @@ export interface Filters {
   artist: string;
 }
 
-// Remove the local ApiResponse definition
+export interface GenreStat {
+  _id: string;
+  count: number;
+}
+
+export interface ArtistStat {
+  artist: string;
+  songs: number;
+  albums: string[];
+  albumsCount: number;
+}
+
+export interface AlbumStat {
+  artist: string;
+  album: string;
+  songs: number;
+}
+
+export interface SongStats {
+  songsPerGenre: GenreStat[];
+  songsAndAlbumsPerArtist: ArtistStat[];
+  songsPerAlbum: AlbumStat[];
+  totalSongs: number;
+  totalArtists: number;
+  totalAlbums: number;
+  totalGenres: number;
+}

@@ -1,11 +1,12 @@
-// src/redux/rootReducer.js
 import { combineReducers } from '@reduxjs/toolkit';
-import authSlice from '../features/auth/authSlice'; // Import your song slice reducer
-import songSlice from '../features/song/songSlice'
-// Combine your slices (add more as needed)
+import authSlice from '../features/auth/authSlice';
+import songSlice from '../features/song/songSlice';
+import songStatisticsSlice from '../features/songStatistics/songStatisticsSlice'; // Import the new slice
+
 const rootReducer = combineReducers({
-  songs: songSlice, // Add more slices if you have more features
-  auth: authSlice, // Assuming you have an auth slice as well
+  auth: authSlice,
+  songs: songSlice,
+  songStatistics: songStatisticsSlice, // Add the new statistics reducer
 });
 
 export default rootReducer;

@@ -1,25 +1,25 @@
-import styled from '@emotion/styled';
-import { 
-  space, 
-  layout, 
-  typography, 
-  color,  
+import styled from "@emotion/styled";
+import {
+  space,
+  layout,
+  typography,
+  color,
   border,
-  SpaceProps, 
-  LayoutProps, 
-  TypographyProps, 
-  ColorProps, 
-  BorderProps
-} from 'styled-system';
-import { Link } from 'react-router-dom';
-
+  SpaceProps,
+  LayoutProps,
+  TypographyProps,
+  ColorProps,
+  BorderProps,
+} from "styled-system";
+import { Link } from "react-router-dom";
+import { SongStatistics } from "../components/SongStatistics";
 // Theme colors
 const colors = {
-  primary: '#315659',
-  secondary: '#a78682',
-  accent: '#b3dec1',
-  dark: '#56203d',
-  neutral: '#587b7f'
+  primary: "#315659",
+  secondary: "#a78682",
+  accent: "#b3dec1",
+  dark: "#56203d",
+  neutral: "#587b7f",
 };
 
 // Page Container
@@ -158,44 +158,68 @@ export const Home = () => {
       <HeroSection bg={colors.primary} py={5} px={4}>
         <HeroTitle fontSize={[4, 5, 6]}>Welcome to SongBase</HeroTitle>
         <HeroSubtitle fontSize={[2, 3]} mb={4}>
-          Your personal music library manager. Organize, discover, and enjoy your favorite songs.
+          Your personal music library manager. Organize, discover, and enjoy
+          your favorite songs.
         </HeroSubtitle>
-        <CtaButton to="/songs" bg={colors.accent} color={colors.dark} px={4} py={3}>
+        <CtaButton
+          to="/songs"
+          bg={colors.accent}
+          color={colors.dark}
+          px={4}
+          py={3}
+        >
           Browse Songs
         </CtaButton>
       </HeroSection>
 
+      <SongStatistics />
+
       <FeaturesSection>
-        <SectionTitle color={colors.primary} mb={4}>Features</SectionTitle>
+        <SectionTitle color={colors.primary} mb={4}>
+          Features
+        </SectionTitle>
         <FeaturesGrid>
           <FeatureCard borderColor={colors.secondary}>
-            <FeatureIcon bg={colors.primary} mb={3}>🎵</FeatureIcon>
+            <FeatureIcon bg={colors.primary} mb={3}>
+              🎵
+            </FeatureIcon>
             <FeatureTitle color={colors.primary}>Song Management</FeatureTitle>
             <FeatureDescription color={colors.neutral}>
-              Easily add, edit, and organize your music collection with our intuitive interface.
+              Easily add, edit, and organize your music collection with our
+              intuitive interface.
             </FeatureDescription>
           </FeatureCard>
 
           <FeatureCard borderColor={colors.secondary}>
-            <FeatureIcon bg={colors.primary} mb={3}>🔍</FeatureIcon>
+            <FeatureIcon bg={colors.primary} mb={3}>
+              🔍
+            </FeatureIcon>
             <FeatureTitle color={colors.primary}>Powerful Search</FeatureTitle>
             <FeatureDescription color={colors.neutral}>
-              Quickly find songs by title, artist, album, or genre with our advanced search.
+              Quickly find songs by title, artist, album, or genre with our
+              advanced search.
             </FeatureDescription>
           </FeatureCard>
 
           <FeatureCard borderColor={colors.secondary}>
-            <FeatureIcon bg={colors.primary} mb={3}>📱</FeatureIcon>
-            <FeatureTitle color={colors.primary}>Responsive Design</FeatureTitle>
+            <FeatureIcon bg={colors.primary} mb={3}>
+              📱
+            </FeatureIcon>
+            <FeatureTitle color={colors.primary}>
+              Responsive Design
+            </FeatureTitle>
             <FeatureDescription color={colors.neutral}>
-              Access your music library from any device, anywhere, with our fully responsive design.
+              Access your music library from any device, anywhere, with our
+              fully responsive design.
             </FeatureDescription>
           </FeatureCard>
         </FeaturesGrid>
       </FeaturesSection>
 
       <CallToAction bg={colors.accent} py={4}>
-        <SectionTitle color={colors.dark} mb={3}>Ready to get started?</SectionTitle>
+        <SectionTitle color={colors.dark} mb={3}>
+          Ready to get started?
+        </SectionTitle>
         <CtaButton to="/signup" bg={colors.primary} color="white" px={4} py={3}>
           Sign Up Now
         </CtaButton>

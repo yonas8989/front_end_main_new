@@ -2,11 +2,14 @@
 import { all } from "redux-saga/effects";
 import songSaga from "../features/song/songSaga";
 import authSaga from "../features/auth/authSaga";
+import songStatisticsSaga from "../features/songStatistics/songStatisticsSaga";
+import { SongStatistics } from "../components/SongStatistics";
 
 // Combine all sagas here
 export default function* rootSaga() {
   yield all([
     songSaga(), // Add more sagas here if you need
     authSaga(),
+    songStatisticsSaga(),
   ]);
 }

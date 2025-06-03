@@ -96,7 +96,7 @@ export default function Login() {
             type="text"
             value={formData.emailOrPhoneNumber}
             onChange={handleChange}
-            error={errors.emailOrPhoneNumber}
+            // error={errors.emailOrPhoneNumber}
           />
           {errors.emailOrPhoneNumber && (
             <ErrorText>{errors.emailOrPhoneNumber}</ErrorText>
@@ -108,7 +108,7 @@ export default function Login() {
             type="password"
             value={formData.password}
             onChange={handleChange}
-            error={errors.password}
+            // error={errors.password}
           />
           {errors.password && <ErrorText>{errors.password}</ErrorText>}
 

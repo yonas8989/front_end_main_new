@@ -140,6 +140,7 @@ interface SongListComponentProps {
 }
 
 export const SongListComponent = ({ songs }: SongListComponentProps) => {
+    console.log('Rendering SongListComponent with songs:', songs);
   return (
     <SongGrid>
       {songs.map((song) => (

@@ -6,16 +6,10 @@ import {
   loginFailure,
   registerSuccess,
   registerFailure,
-  verifyOTPSuccess,
-  verifyOTPFailure,
-  resetPasswordSuccess,
-  resetPasswordFailure,
   logoutSuccess,
   logoutFailure,
   loginRequest,
   registerRequest,
-  verifyOTPRequest,
-  resetPasswordRequest,
   logoutRequest,
   clientLogout,
 } from "./authSlice";
@@ -23,8 +17,6 @@ import { api } from "../../api/apiClient";
 import {
   LoginCredentials,
   RegisterData,
-  ResetPasswordData,
-  VerifyOTPData,
   User,
 } from "../../types/auth";
 import { ApiResponse } from "../../types/api";
@@ -103,52 +95,6 @@ function* handleRegister(action: PayloadAction<RegisterData>) {
   }
 }
 
-function* handleVerifyOTP(action: PayloadAction<VerifyOTPData>) {
-  try {
-    const response: ApiResponse<{ verified: boolean }> = yield call(
-      api.post,
-      "/auth/verify-otp",
-      action.payload
-    );
-
-    if (response.status === "SUCCESS") {
-      yield put(verifyOTPSuccess(response.data.verified));
-    } else {
-      throw new Error(response.message || "OTP verification failed");
-    }
-  } catch (error) {
-    console.error("Verify OTP error:", error);
-    yield put(
-      verifyOTPFailure(
-        error instanceof Error ? error.message : "OTP verification failed"
-      )
-    );
-  }
-}
-
-function* handleResetPassword(action: PayloadAction<ResetPasswordData>) {
-  try {
-    const response: ApiResponse<{}> = yield call(
-      api.post,
-      "/auth/reset-password",
-      action.payload
-    );
-
-    if (response.status === "SUCCESS") {
-      yield put(resetPasswordSuccess());
-    } else {
-      throw new Error(response.message || "Password reset failed");
-    }
-  } catch (error) {
-    console.error("Reset password error:", error);
-    yield put(
-      resetPasswordFailure(
-        error instanceof Error ? error.message : "Password reset failed"
-      )
-    );
-  }
-}
-
 function* handleLogout() {
   try {
     const token = localStorage.getItem("token");
@@ -192,8 +138,6 @@ function* handleClientLogout() {
 export default function* authSaga() {
   yield takeEvery(loginRequest.type, handleLogin);
   yield takeEvery(registerRequest.type, handleRegister);
-  yield takeEvery(verifyOTPRequest.type, handleVerifyOTP);
-  yield takeEvery(resetPasswordRequest.type, handleResetPassword);
   yield takeEvery(logoutRequest.type, handleLogout);
   yield takeEvery(clientLogout.type, handleClientLogout);
 }

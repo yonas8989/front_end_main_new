@@ -15,7 +15,6 @@ import {
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../app/store';
 import { fetchSongsRequest , updateFilters, resetFilters} from '../features/song/songSlice';
 import {
   selectFilteredSongs,

@@ -217,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Navigation */}
       <Nav>
         <NavLink 
-          onClick={() => onNavClick('home')} 
+          onClick={() => onNavClick('')} 
           active={currentPage === 'home'}
           color="white"
           fontSize={2}

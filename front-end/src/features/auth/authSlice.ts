@@ -2,8 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   LoginCredentials,
   RegisterData,
-  ResetPasswordData,
-  VerifyOTPData,
+
   User,
 } from "../../types/auth";
 
@@ -14,12 +13,18 @@ interface AuthState {
   error: string | null;
 }
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  loading: false,
-  error: null,
+// In authSlice.ts
+const loadInitialState = (): AuthState => {
+  const token = localStorage.getItem("token");
+  return {
+    user: null, // You might want to load user data too
+    token,
+    loading: false,
+    error: null,
+  };
 };
+
+const initialState: AuthState = loadInitialState();
 
 const authSlice = createSlice({
   name: "auth",
@@ -51,28 +56,6 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    verifyOTPRequest(state, _action: PayloadAction<VerifyOTPData>) {
-      state.loading = true;
-      state.error = null;
-    },
-    verifyOTPSuccess(state, _action: PayloadAction<boolean>) {
-      state.loading = false;
-    },
-    verifyOTPFailure(state, action: PayloadAction<string>) {
-      state.error = action.payload;
-      state.loading = false;
-    },
-    resetPasswordRequest(state, _action: PayloadAction<ResetPasswordData>) {
-      state.loading = true;
-      state.error = null;
-    },
-    resetPasswordSuccess(state) {
-      state.loading = false;
-    },
-    resetPasswordFailure(state, action: PayloadAction<string>) {
-      state.error = action.payload;
-      state.loading = false;
-    },
     logoutRequest(state) {
       state.loading = true;
       state.error = null;
@@ -90,7 +73,19 @@ const authSlice = createSlice({
     clientLogout(state) {
       state.user = null;
       state.token = null;
-    }
+    },
+    // In authSlice.ts
+    verifyTokenRequest(state) {
+      state.loading = true;
+    },
+    verifyTokenSuccess(state, action: PayloadAction<{ user: User }>) {
+      state.user = action.payload.user;
+      state.loading = false;
+    },
+    verifyTokenFailure(state) {
+      state.token = null;
+      state.loading = false;
+    },
   },
 });
 
@@ -101,16 +96,13 @@ export const {
   registerRequest,
   registerSuccess,
   registerFailure,
-  verifyOTPRequest,
-  verifyOTPSuccess,
-  verifyOTPFailure,
-  resetPasswordRequest,
-  resetPasswordSuccess,
-  resetPasswordFailure,
   logoutRequest,
   logoutSuccess,
   logoutFailure,
   clientLogout,
+  verifyTokenFailure,
+  verifyTokenRequest,
+  verifyTokenSuccess,
 } = authSlice.actions;
 
 export default authSlice.reducer;

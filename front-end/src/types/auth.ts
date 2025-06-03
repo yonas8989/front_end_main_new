@@ -32,7 +32,3 @@ export interface ResetPasswordData {
   token: string;
   newPassword: string;
 }
-export interface VerifyOTPData {
-  emailOrPhoneNumber: string;  
-  otp: string;                
-}

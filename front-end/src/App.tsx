@@ -13,7 +13,6 @@ import { Provider, useSelector, useDispatch } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import store from "./app/store";
 import "react-toastify/dist/ReactToastify.css";
-import { RootState } from "./app/store";
 import { selectIsAuthenticated, selectAuthLoading } from "./features/auth/authSelector";
 import { logoutRequest } from "./features/auth/authSlice";
 

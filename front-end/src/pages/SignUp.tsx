@@ -121,7 +121,6 @@ export default function Signup() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                error={errors.firstName}
               />
               {errors.firstName && <ErrorText>{errors.firstName}</ErrorText>}
             </div>
@@ -131,7 +130,6 @@ export default function Signup() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                error={errors.lastName}
               />
               {errors.lastName && <ErrorText>{errors.lastName}</ErrorText>}
             </div>
@@ -143,7 +141,6 @@ export default function Signup() {
             type="email"
             value={formData.email}
             onChange={handleChange}
-            error={errors.email}
           />
           {errors.email && <ErrorText>{errors.email}</ErrorText>}
 
@@ -154,7 +151,6 @@ export default function Signup() {
             placeholder="+1234567890"
             value={formData.phoneNumber}
             onChange={handleChange}
-            error={errors.phoneNumber}
           />
           {errors.phoneNumber && <ErrorText>{errors.phoneNumber}</ErrorText>}
 
@@ -164,7 +160,6 @@ export default function Signup() {
             type="password"
             value={formData.password}
             onChange={handleChange}
-            error={errors.password}
           />
           {errors.password && <ErrorText>{errors.password}</ErrorText>}
 
@@ -174,7 +169,7 @@ export default function Signup() {
             type="password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            error={errors.confirmPassword}
+            
           />
           {errors.confirmPassword && (
             <ErrorText>{errors.confirmPassword}</ErrorText>

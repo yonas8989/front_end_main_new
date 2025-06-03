@@ -177,6 +177,7 @@ export const AddSong = () => {
         fileUrl: formData.fileUrl,
         coverImageUrl: formData.coverImageUrl
       }));
+      navigate("/songs");
     } catch (err) {
       console.error('Error submitting form:', err);
       setLocalError('Failed to add song. Please try again.');

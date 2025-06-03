@@ -1,6 +1,6 @@
 // src/features/song/songSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Song, SongPayload, Filters } from '../../types/song';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Song, SongPayload, Filters } from "../../types/song";
 
 // src/features/song/songSlice.ts
 interface SongState {
@@ -13,16 +13,16 @@ interface SongState {
 const initialState: SongState = {
   songs: [], // This should store the array directly
   filters: {
-    album: '',
-    artist: '',
-    genre: ''
+    album: "",
+    artist: "",
+    genre: "",
   },
   loading: false,
   error: null,
 };
 
 const songSlice = createSlice({
-  name: 'song',
+  name: "song",
   initialState,
   reducers: {
     fetchSongsRequest(state) {
@@ -49,17 +49,23 @@ const songSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    editSongRequest(state, _action: PayloadAction<SongPayload & { id: string }>) {
+    editSongRequest(
+      state,
+      _action: PayloadAction<SongPayload & { id: string }>
+    ) {
       state.loading = true;
       state.error = null;
     },
     editSongSuccess(state, action: PayloadAction<Song>) {
-      const index = state.songs.findIndex((song) => song.id === action.payload.id);
+      const index = state.songs.findIndex(
+        (song) => song._id === action.payload._id
+      ); // Changed id to _id
       if (index !== -1) {
         state.songs[index] = action.payload;
       }
       state.loading = false;
     },
+
     editSongFailure(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.loading = false;
@@ -69,7 +75,7 @@ const songSlice = createSlice({
       state.error = null;
     },
     deleteSongSuccess(state, action: PayloadAction<string>) {
-      state.songs = state.songs.filter((song) => song.id !== action.payload);
+      state.songs = state.songs.filter((song) => song._id !== action.payload); // Changed id to _id
       state.loading = false;
     },
     deleteSongFailure(state, action: PayloadAction<string>) {

@@ -53,6 +53,8 @@ export const api = {
     apiClient.post<ApiResponse<T>>(url, data, config).then((res) => res.data),
   put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
     apiClient.put<ApiResponse<T>>(url, data, config).then((res) => res.data),
+  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
+    apiClient.patch<ApiResponse<T>>(url, data, config).then((res) => res.data),
   delete: <T>(url: string, config?: AxiosRequestConfig) => 
     apiClient.delete<ApiResponse<T>>(url, config).then((res) => res.data),
 };

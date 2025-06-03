@@ -144,7 +144,7 @@ export const SongListComponent = ({ songs }: SongListComponentProps) => {
   return (
     <SongGrid>
       {songs.map((song) => (
-        <SongCard key={song.id} borderColor={colors.secondary}>
+        <SongCard key={song._id} borderColor={colors.secondary}>
           <SongHeader bg={colors.primary} p={3}>
             <SongTitle>{song.title}</SongTitle>
             <SongArtist color={colors.accent}>{song.artist}</SongArtist>
@@ -163,10 +163,10 @@ export const SongListComponent = ({ songs }: SongListComponentProps) => {
               <DetailValue color={colors.neutral}>{song.releaseYear}</DetailValue>
             </SongDetail>
             <Actions>
-              <ViewButton to={`/songs/${song.id}`} bg={colors.neutral} px={2} py={1}>
+              <ViewButton to={`/songs/${song._id}`} bg={colors.neutral} px={2} py={1}>
                 View
               </ViewButton>
-              <EditButton to={`/songs/edit/${song.id}`} bg={colors.accent} px={2} py={1}>
+              <EditButton to={`/songs/edit/${song._id}`} bg={colors.accent} px={2} py={1}>
                 Edit
               </EditButton>
             </Actions>

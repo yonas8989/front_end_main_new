@@ -1,17 +1,17 @@
-import styled from '@emotion/styled';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { editSongRequest } from '../features/song/songSlice';
-import { RootState } from '../app/store';
+import styled from "@emotion/styled";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { editSongRequest } from "../features/song/songSlice";
+import { RootState } from "../app/store";
 
 // Theme colors
 const colors = {
-  primary: '#315659',
-  secondary: '#a78682',
-  accent: '#b3dec1',
-  dark: '#56203d',
-  neutral: '#587b7f'
+  primary: "#315659",
+  secondary: "#a78682",
+  accent: "#b3dec1",
+  dark: "#56203d",
+  neutral: "#587b7f",
 };
 
 // Basic form styling
@@ -94,30 +94,41 @@ const ErrorMessage = styled.div`
   font-size: 0.875rem;
 `;
 
-
 export const EditSong = () => {
-  const { id } = useParams(); // Get song ID from route
+  const { id } = useParams(); // Changed to id
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { songs, error } = useSelector((state: RootState) => state.songs);
-  const song = songs.find((s) => s.id === id);
+  const song = songs.find((s) => s._id === id); // Use id
 
   const [formData, setFormData] = useState({
-    title: '',
-    artist: '',
-    album: '',
-    genre: '',
-    duration: '',
-    releaseYear: '',
-    fileUrl: '',
-    coverImageUrl: ''
+    title: "",
+    artist: "",
+    album: "",
+    genre: "",
+    duration: "",
+    releaseYear: "",
+    fileUrl: "",
+    coverImageUrl: "",
   });
-  const [localError, setLocalError] = useState('');
+  const [localError, setLocalError] = useState("");
 
   const genres = [
-    'Pop', 'Rock', 'Hip-Hop', 'R&B', 'Electronic',
-    'Jazz', 'Classical', 'Country', 'Blues',
-    'Reggae', 'Metal', 'Folk', 'Alternative', 'Indie', 'Other'
+    "Pop",
+    "Rock",
+    "Hip-Hop",
+    "R&B",
+    "Electronic",
+    "Jazz",
+    "Classical",
+    "Country",
+    "Blues",
+    "Reggae",
+    "Metal",
+    "Folk",
+    "Alternative",
+    "Indie",
+    "Other",
   ];
 
   useEffect(() => {
@@ -125,81 +136,111 @@ export const EditSong = () => {
       setFormData({
         title: song.title,
         artist: song.artist,
-        album: song.album || '',
+        album: song.album || "",
         genre: song.genre,
         duration: song.duration.toString(),
         releaseYear: song.releaseYear.toString(),
         fileUrl: song.fileUrl,
-        coverImageUrl: song.coverImageUrl || ''
+        coverImageUrl: song.coverImageUrl || "",
       });
     }
   }, [song]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (localError) setLocalError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (localError) setLocalError("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) return;
+    if (!id) return; // Use id
 
     // Basic validation
-    if (!formData.title.trim()) return setLocalError('Title is required');
-    if (!formData.artist.trim()) return setLocalError('Artist is required');
-    if (!formData.genre) return setLocalError('Genre is required');
-    if (!formData.duration || isNaN(parseInt(formData.duration))) return setLocalError('Valid duration required');
-    if (!formData.releaseYear || isNaN(parseInt(formData.releaseYear))) return setLocalError('Valid release year required');
-    if (!formData.fileUrl) return setLocalError('File URL required');
+    if (!formData.title.trim()) return setLocalError("Title is required");
+    if (!formData.artist.trim()) return setLocalError("Artist is required");
+    if (!formData.genre) return setLocalError("Genre is required");
+    if (!formData.duration || isNaN(parseInt(formData.duration)))
+      return setLocalError("Valid duration required");
+    if (!formData.releaseYear || isNaN(parseInt(formData.releaseYear)))
+      return setLocalError("Valid release year required");
+    if (!formData.fileUrl) return setLocalError("File URL required");
 
     try {
-      dispatch(editSongRequest({
-        id,
-        title: formData.title,
-        artist: formData.artist,
-        album: formData.album,
-        genre: formData.genre,
-        duration: parseInt(formData.duration),
-        releaseYear: parseInt(formData.releaseYear),
-        fileUrl: formData.fileUrl,
-        coverImageUrl: formData.coverImageUrl
-      }));
-      navigate('/songs');
+      dispatch(
+        editSongRequest({
+          id, // Use id
+          title: formData.title,
+          artist: formData.artist,
+          album: formData.album,
+          genre: formData.genre,
+          duration: parseInt(formData.duration),
+          releaseYear: parseInt(formData.releaseYear),
+          fileUrl: formData.fileUrl,
+          coverImageUrl: formData.coverImageUrl,
+        })
+      );
+      navigate("/songs");
     } catch (err) {
-      console.error('Failed to update song', err);
-      setLocalError('Failed to update song');
+      console.error("Failed to update song", err);
+      setLocalError("Failed to update song");
     }
   };
 
+  if (!songs.length) return <p>Loading songs...</p>;
   if (!song) return <p>Song not found.</p>;
 
   return (
     <FormContainer>
       <h1>Edit Song</h1>
       <Form onSubmit={handleSubmit}>
-        {(error || localError) && <ErrorMessage>{error || localError}</ErrorMessage>}
+        {(error || localError) && (
+          <ErrorMessage>{error || localError}</ErrorMessage>
+        )}
 
         <FormColumns>
           <FormColumn>
             <FormGroup>
               <label>Title</label>
-              <Input name="title" value={formData.title} onChange={handleChange} required />
+              <Input
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
             </FormGroup>
             <FormGroup>
               <label>Artist</label>
-              <Input name="artist" value={formData.artist} onChange={handleChange} required />
+              <Input
+                name="artist"
+                value={formData.artist}
+                onChange={handleChange}
+                required
+              />
             </FormGroup>
             <FormGroup>
               <label>Album</label>
-              <Input name="album" value={formData.album} onChange={handleChange} />
+              <Input
+                name="album"
+                value={formData.album}
+                onChange={handleChange}
+              />
             </FormGroup>
             <FormGroup>
               <label>Genre</label>
-              <Select name="genre" value={formData.genre} onChange={handleChange} required>
+              <Select
+                name="genre"
+                value={formData.genre}
+                onChange={handleChange}
+                required
+              >
                 <option value="">Select a genre</option>
                 {genres.map((genre) => (
-                  <option key={genre} value={genre}>{genre}</option>
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
                 ))}
               </Select>
             </FormGroup>
@@ -208,28 +249,61 @@ export const EditSong = () => {
           <FormColumn>
             <FormGroup>
               <label>Duration (seconds)</label>
-              <Input name="duration" type="number" value={formData.duration} onChange={handleChange} min="1" required />
+              <Input
+                name="duration"
+                type="number"
+                value={formData.duration}
+                onChange={handleChange}
+                min="1"
+                required
+              />
             </FormGroup>
             <FormGroup>
               <label>Release Year</label>
-              <Input name="releaseYear" type="number" value={formData.releaseYear} onChange={handleChange} min="1900" max={new Date().getFullYear()} required />
+              <Input
+                name="releaseYear"
+                type="number"
+                value={formData.releaseYear}
+                onChange={handleChange}
+                min="1900"
+                max={new Date().getFullYear()}
+                required
+              />
             </FormGroup>
             <FormGroup>
               <label>File URL</label>
-              <Input name="fileUrl" type="url" value={formData.fileUrl} onChange={handleChange} required />
+              <Input
+                name="fileUrl"
+                type="url"
+                value={formData.fileUrl}
+                onChange={handleChange}
+                required
+              />
             </FormGroup>
             <FormGroup>
               <label>Cover Image URL</label>
-              <Input name="coverImageUrl" type="url" value={formData.coverImageUrl} onChange={handleChange} />
+              <Input
+                name="coverImageUrl"
+                type="url"
+                value={formData.coverImageUrl}
+                onChange={handleChange}
+              />
             </FormGroup>
           </FormColumn>
         </FormColumns>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <Button type="submit" style={{ background: colors.primary, color: 'white' }}>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+          <Button
+            type="submit"
+            style={{ background: colors.primary, color: "white" }}
+          >
             Save Changes
           </Button>
-          <Button type="button" style={{ background: colors.secondary, color: 'white' }} onClick={() => navigate('/songs')}>
+          <Button
+            type="button"
+            style={{ background: colors.secondary, color: "white" }}
+            onClick={() => navigate("/songs")}
+          >
             Cancel
           </Button>
         </div>

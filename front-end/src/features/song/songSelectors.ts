@@ -37,10 +37,11 @@ export const selectFilteredSongs = createSelector(
 );
 
 // Selector to get a song by ID
+// src/features/song/songSelectors.ts
 export const selectSongById = (id: string) =>
   createSelector([selectSongs], (songs: Song[]) => 
-    songs.find((song) => song.id === id)
-  );
+    songs.find((song) => song._id === id)  // Changed id to _id
+);
 
 // Selector to get unique genres
 export const selectUniqueGenres = createSelector([selectSongs], (songs: Song[]) => {

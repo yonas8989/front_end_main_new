@@ -1,8 +1,6 @@
-// src/types/song.ts
-import { ApiResponse } from './api';
 
 export interface Song {
-  id: string;
+  _id: string;  // Changed from id to _id
   title: string;
   artist: string;
   album?: string;
@@ -14,7 +12,7 @@ export interface Song {
 }
 
 export interface SongPayload {
-  id?: string;
+  _id?: string;  // Changed from id to _id
   title: string;
   artist?: string;
   album?: string;

@@ -99,7 +99,7 @@ function* handleEditSong(action: PayloadAction<SongPayload & { id: string }>) {
 
     const { id: _, ...updatedSong } = action.payload;
     const response: ApiResponse<Song> = yield call(
-      api.put,
+      api.patch,
       `/songs/${id}`,
       updatedSong
     );
